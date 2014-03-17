@@ -47,7 +47,7 @@
       "configtype" : "pagemodel",
       "name" : "dashboard",
       "templateName" : "dashboard",
-      "path" : "/admin_new",
+      "path" : "/admin",
       "components" : [ {
         "name" : "dashboard",
         "globals" : { }
