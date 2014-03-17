@@ -1,5 +1,5 @@
 [ {
-  "name" : "core/dashboard",
+  "name" : "core9/dashboard",
   "description" : "Core9 Admin Dashboard",
   "versions" : [ "1.0.0" ]
 } ]
