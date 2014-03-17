@@ -3,7 +3,7 @@
     "id" : "URP6MBPFOY90",
     "entry" : {
       "_id" : "URP6MBPFOY90",
-      "filename" : "plugin-features.js",
+      "filename" : "module-cms-features.js",
       "contentType" : "application/javascript",
       "uploadDate" : 1395083301612,
       "metadata" : {
@@ -14,6 +14,6 @@
   } ],
   "adminplugin" : [ {
     "module" : "core9Dashboard.features",
-    "file" : "/static/admin/plugins/plugin-features.js"
+    "file" : "/static/admin/plugins/module-cms-features.js"
   } ]
 }
