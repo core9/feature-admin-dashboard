@@ -1,20 +1,20 @@
 {
-  "adminplugin" : [ {
-    "module" : "core9Dashboard.admin.dashboard",
-    "file" : "/static/admin/plugins/plugin-admin-dashboard.js"
-  } ],
   "files" : [ {
-    "id" : "RHDTW2Y3YJHX",
+    "id" : "R1A2MM5J8OJ8",
     "entry" : {
-      "_id" : "RHDTW2Y3YJHX",
+      "_id" : "R1A2MM5J8OJ8",
       "filename" : "plugin-admin-dashboard.js",
       "contentType" : "application/javascript",
-      "uploadDate" : 1395075068403,
+      "uploadDate" : 1395082341459,
       "metadata" : {
         "folder" : "/admin/plugins/",
         "type" : "File"
       }
     }
+  } ],
+  "adminplugin" : [ {
+    "module" : "core9Dashboard.admin.dashboard",
+    "file" : "/static/admin/plugins/plugin-admin-dashboard.js"
   } ],
   "configuration" : [ {
     "id" : "T4CB78OIMTRM",
@@ -40,6 +40,5 @@
       "templateName" : "core9.admin.dashboard.main",
       "handler" : "DashboardPlugins"
     }
-  } ],
-  "content" : [ ]
+  } ]
 }
