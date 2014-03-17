@@ -1,5 +1,11 @@
-[ {
-  "name" : "core9/dashboard",
-  "description" : "Core9 Admin Dashboard",
-  "versions" : [ "1.0.0" ]
-} ]
+[ 
+	{
+		"name" : "core9/dashboard",
+		"description" : "Core9 Admin Dashboard",
+		"versions" : [ "1.0.0" ]
+	}, {
+		"name" : "core9/features",
+		"description" : "Features Admin Module",
+		"versions" : [ "1.0.0" ]
+	}
+]

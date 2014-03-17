@@ -1,0 +1,19 @@
+{
+  "files" : [ {
+    "id" : "URP6MBPFOY90",
+    "entry" : {
+      "_id" : "URP6MBPFOY90",
+      "filename" : "plugin-features.js",
+      "contentType" : "application/javascript",
+      "uploadDate" : 1395083301612,
+      "metadata" : {
+        "folder" : "/admin/plugins/",
+        "type" : "File"
+      }
+    }
+  } ],
+  "adminplugin" : [ {
+    "module" : "core9Dashboard.features",
+    "file" : "/static/admin/plugins/plugin-features.js"
+  } ]
+}
