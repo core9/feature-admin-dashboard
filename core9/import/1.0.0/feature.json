@@ -1,0 +1,19 @@
+{
+  "files" : [ {
+    "id" : "QY4DWXSO05DD",
+    "entry" : {
+      "_id" : "QY4DWXSO05DD",
+      "filename" : "module-cms-import.js",
+      "contentType" : "application/javascript",
+      "uploadDate" : 1395098381902,
+      "metadata" : {
+        "folder" : "/admin/plugins/",
+        "type" : "File"
+      }
+    }
+  } ],
+  "adminplugin" : [ {
+    "module" : "core9Dashboard.import",
+    "file" : "/static/admin/plugins/module-cms-import.js"
+  } ]
+}
