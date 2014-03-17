@@ -14,6 +14,6 @@
   } ],
   "adminplugin" : [ {
     "module" : "core9Dashboard.widgets",
-    "file" : "/static/admin/plugin/module-cms-widgets.js"
+    "file" : "/static/admin/plugins/module-cms-widgets.js"
   } ]
 }
