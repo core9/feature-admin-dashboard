@@ -3,7 +3,7 @@
     "id" : "1IUNPBINPL5BQ",
     "entry" : {
       "_id" : "1IUNPBINPL5BQ",
-      "filename" : "plugin-files-manager-admin.js",
+      "filename" : "module-cms-filesmanager.js",
       "contentType" : "application/javascript",
       "uploadDate" : 1395083301612,
       "metadata" : {
@@ -14,6 +14,6 @@
   } ],
   "adminplugin" : [ {
     "module" : "core9Dashboard.filesmanager",
-    "file" : "/static/admin/plugins/plugin-files-manager-admin.js"
+    "file" : "/static/admin/plugins/module-cms-filesmanager.js"
   } ]
 }

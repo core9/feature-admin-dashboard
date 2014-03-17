@@ -1,13 +1,13 @@
 {
   "adminplugin" : [ {
     "module" : "core9Dashboard.admin.dashboard",
-    "file" : "/static/admin/plugins/plugin-admin-dashboard.js"
+    "file" : "/static/admin/plugins/module-cms.js"
   } ],
   "files" : [ {
     "id" : "R1A2MM5J8OJ8",
     "entry" : {
       "_id" : "R1A2MM5J8OJ8",
-      "filename" : "plugin-admin-dashboard.js",
+      "filename" : "module-cms.js",
       "contentType" : "application/javascript",
       "uploadDate" : 1395075068403,
       "metadata" : {
