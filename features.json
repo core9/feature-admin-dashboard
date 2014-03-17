@@ -11,5 +11,9 @@
 		"name" : "core9/filesmanager",
 		"description" : "Files Manager Admin Module",
 		"versions" : [ "1.0.0" ]
+	}, {
+  		"name" : "core9/widgets",
+  		"description" : "Manage your widgets and pagemodels",
+  		"versions" : [ "1.0.0" ]
 	}
 ]

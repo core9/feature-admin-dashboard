@@ -1,0 +1,19 @@
+{
+  "files" : [ {
+    "id" : "1IYC8Y5WOM6HV",
+    "entry" : {
+      "_id" : "1IYC8Y5WOM6HV",
+      "filename" : "module-cms-widgets.js",
+      "contentType" : "application/javascript",
+      "uploadDate" : 1395095958779,
+      "metadata" : {
+        "folder" : "/admin/plugins/",
+        "type" : "File"
+      }
+    }
+  } ],
+  "adminplugin" : [ {
+    "module" : "core9Dashboard.widgets",
+    "file" : "/static/admin/plugin/module-cms-widgets.js"
+  } ]
+}
