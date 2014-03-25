@@ -475,17 +475,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {
     margin-bottom: 15px;
   }
   
-  .CodeMirror-fullscreen {
-    top: 50px;
-  }
-
-  .close-fullscreen {
-    position: fixed;
-    right: 0;
-    bottom: 0;
-    z-index: 1030;
-    margin-right: 20px;
-  }
+  
   
   .input-group {
     .dropdown-menu.selectbox {
@@ -576,4 +566,17 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {
     padding-right: 40px;
     padding-left: 40px;
   }
+}
+
+.core9 .CodeMirror-fullscreen {
+  top: 50px;
+  z-index: 1499;
+}
+
+.core9 .close-fullscreen {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  z-index: 1500;
+  margin-right: 20px;
 }
