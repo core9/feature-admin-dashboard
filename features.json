@@ -1,23 +1,21 @@
-[ 
-	{
-		"name" : "core9/dashboard",
-		"description" : "Core9 Admin Dashboard",
-		"versions" : [ "1.0.0" ]
-	}, {
-		"name" : "core9/features",
-		"description" : "Features Admin Module",
-		"versions" : [ "1.0.0" ]
-	}, {
-		"name" : "core9/filesmanager",
-		"description" : "Files Manager Admin Module",
-		"versions" : [ "1.0.0" ]
-	}, {
-  		"name" : "core9/widgets",
-  		"description" : "Manage your widgets and pagemodels",
-  		"versions" : [ "1.0.0" ]
-	}, {
-		"name" : "core9/import",
-		"description" : "Use importers for your data",
-		"versions" : [ "1.0.0" ]
-	}
-]
+[ {
+  "name" : "core9/dashboard",
+  "description" : "Core9 Admin Dashboard",
+  "versions" : [ "1.0.0" ]
+}, {
+  "name" : "core9/features",
+  "description" : "Features Admin Module",
+  "versions" : [ "1.0.0" ]
+}, {
+  "name" : "core9/filesmanager",
+  "description" : "Files Manager Admin Module",
+  "versions" : [ "1.0.0" ]
+}, {
+  "name" : "core9/widgets",
+  "description" : "Manage your widgets and pagemodels",
+  "versions" : [ "1.0.0" ]
+}, {
+  "name" : "core9/import",
+  "description" : "Use importers for your data",
+  "versions" : [ "1.0.0" ]
+} ]
