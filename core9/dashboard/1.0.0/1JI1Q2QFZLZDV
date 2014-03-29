@@ -478,13 +478,13 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {
   
   
   .input-group {
-    .dropdown-menu.selectbox {
-      width: 100%;
-    }
+  	.dropdown-menu.selectbox {
+  	  width: 100%;
+  	}
   }
   
   td.form-control {
-    display: table-cell;
+  	display: table-cell;
   }
   */
 
@@ -492,6 +492,10 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {
 
 .core9 body {
   padding-top: 50px;
+}
+
+.core9 .sidebar ul {
+  margin-bottom: 20px;
 }
 
 @media (max-width: 767px) {
