@@ -1,0 +1,20 @@
+{
+  "adminplugin" : [ {
+    "module" : "core9Dashboard.thumbnails",
+    "file" : "/static/admin/plugins/module-platform-thumbnails.js"
+  } ],
+  "configuration" : [ ],
+  "files" : [ {
+    "id" : "1IYHSHVKUVD4I",
+    "entry" : {
+      "_id" : "1IYHSHVKUVD4I",
+      "filename" : "module-platform-thumbnails.js",
+      "contentType" : "application/javascript",
+      "uploadDate" : 1396186503777,
+      "metadata" : {
+        "folder" : "/admin/plugins/",
+        "type" : "File"
+      }
+    }
+  } ]
+}

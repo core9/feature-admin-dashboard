@@ -18,4 +18,8 @@
   "name" : "core9/import",
   "description" : "Use importers for your data",
   "versions" : [ "1.0.0" ]
+}, {
+  "name" : "core9/thumbnails",
+  "description" : "Image profiles editor",
+  "versions" : [ "1.0.0" ]
 } ]
