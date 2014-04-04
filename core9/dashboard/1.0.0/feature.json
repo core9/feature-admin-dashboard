@@ -51,7 +51,9 @@
       "components" : [ {
         "name" : "dashboard",
         "globals" : { }
-      } ]
+      } ],
+      "roles" : [ ],
+      "permissions" : [ "dashboard:access" ]
     }
   }, {
     "id" : "SOPPF9OHT8VP",
@@ -60,10 +62,94 @@
       "configtype" : "widget",
       "name" : "dashboard",
       "handleroptions" : { },
-      "template" : "{namespace core9.admin.dashboard}\n\n/**\n* @param jsfiles\n* @param ngmods\n*/\n{template .main}\n<!DOCTYPE html>\n<html lang=\"en\" ng-app=\"core9Dashboard\" ng-controller=\"AppCtrl\" class=\"core9 admin dashboard\">\n<head>\n  <title ng-bind=\"pageTitle\"></title>\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no\" />\n  <link href=\"//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css\" rel=\"stylesheet\">\n  <link href=\"//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css\" rel=\"stylesheet\">\n  <link rel=\"stylesheet\" type=\"text/css\" href=\"static/admin/core9-admin-cms-0.0.1.css\" />\n  <script type=\"text/javascript\" src=\"static/admin/core9-admin-cms-0.0.1.js\"></script>\n  {foreach $file in $jsfiles}\n  <script type=\"text/javascript\" src=\"{$file}\"></script>\n  {/foreach}\n  <script type=\"text/javascript\">\n  \tangular.module( 'core9Dashboard.extensions', [\n    \t{foreach $mod in $ngmods}'{$mod}',{/foreach}\n    ]);\n  </script>\n</head>\n<body>\n<header class=\"navbar navbar-inverse navbar-fixed-top\" role=\"navigation\">\n\t<div class=\"container-fluid\">\n\t\t<div class=\"navbar-header\">\n\t\t\t<button type=\"button\" class=\"navbar-toggle\" ng-click=\"collapseMenu = !collapseMenu\">\n\t\t\t\t<span class=\"sr-only\">Toggle navigation</span>\n\t\t\t\t<span class=\"icon-bar\"></span>\n\t\t\t\t<span class=\"icon-bar\"></span>\n\t\t\t\t<span class=\"icon-bar\"></span>\n\t\t\t</button>\n\t\t\t<a class=\"navbar-brand\" href=\"#\"><i class=\"fa fa-cogs\"></i>Core9 Admin Dashboard</a>\n\t\t</div>\n        <div core-menu=\"menu\" class=\"nav navbar-nav navbar hidden-xs hidden-sm\"></div>\n\t\t<nav collapse=\"collapseMenu\" role=\"banner\">\n        \t<div core-menu=\"context\" core-show-sub=\"false\"></div>\n        \t<div core-menu=\"sidebar\" core-show-sub=\"false\"></div>\n            <div core-menu=\"sidebar\" core-show-sub=\"false\"></div>\n\t\t\t<div core-menu=\"menu\" core-show-sub=\"false\"></div>\n\t\t</nav>\n\t</div>\n</header>\n<div class=\"container-fluid\">\n\t<div class=\"row\">\n\t\t<div class=\"col-sm-3 col-md-2 sidebar\">\n        \t<div core-menu=\"context\" class=\"nav-sidebar\"></div>\n\t\t\t<div core-menu=\"sidebar\" class=\"nav-sidebar\"></div>\n\t\t</div>\n\t\t<div class=\"col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main\">\n\t\t\t<div class=\"status-message\">\n\t\t\t\t\t<div class=\"alert alert-danger clearfix\" ng-show=\"error !== undefined && error !== ''\">\n\t\t\t\t\t\t{literal}{{error}}{/literal}\n\t\t\t\t\t\t<button type=\"button\" class=\"close\" ng-click=\"close()\">&times;</button>\n                    </div>\n\t\t\t</div>\n\t\t\t<div ui-view=\"main\"></div>\n\t\t</div>\n\t</div>\n</div>\n</body>\n</html>\n{/template}",
+      "template" : "{namespace core9.admin.dashboard}\n\n/**\n* @param jsfiles\n* @param ngmods\n*/\n{template .main}\n<!DOCTYPE html>\n<html lang=\"en\" ng-app=\"core9Dashboard\" ng-controller=\"AppCtrl\" class=\"core9 admin dashboard\">\n<head>\n  <title ng-bind=\"pageTitle\"></title>\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no\" />\n  <link href=\"//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css\" rel=\"stylesheet\">\n  <link href=\"//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css\" rel=\"stylesheet\">  \n  <link rel=\"stylesheet\" type=\"text/css\" href=\"static/admin/core9-admin-cms-0.0.1.css\" />\n  <script type=\"text/javascript\" src=\"/static/admin/core9-admin-cms-0.0.1.js\"></script>\n  {foreach $file in $jsfiles}\n  <script type=\"text/javascript\" src=\"{$file}\"></script>\n  {/foreach}\n  <script type=\"text/javascript\">\n  \tangular.module( 'core9Dashboard.extensions', [\n    \t{foreach $mod in $ngmods}'{$mod}',{/foreach}\n    ]);\n  </script>\n</head>\n<body>\n<header class=\"navbar navbar-inverse navbar-fixed-top\" role=\"navigation\">\n\t<div class=\"container-fluid\">\n\t\t<div class=\"navbar-header\">\n\t\t\t<button type=\"button\" class=\"navbar-toggle\" ng-click=\"collapseMenu = !collapseMenu\">\n\t\t\t\t<span class=\"sr-only\">Toggle navigation</span>\n\t\t\t\t<span class=\"icon-bar\"></span>\n\t\t\t\t<span class=\"icon-bar\"></span>\n\t\t\t\t<span class=\"icon-bar\"></span>\n\t\t\t</button>\n\t\t\t<a class=\"navbar-brand\" href=\"#\"><i class=\"fa fa-cogs\"></i>Core9 Admin Dashboard</a>\n\t\t</div>\n        <div core-menu=\"menu\" class=\"nav navbar-nav navbar hidden-xs hidden-sm\"></div>\n\t\t<nav collapse=\"collapseMenu\" role=\"banner\">\n        \t<div core-menu=\"context\" core-show-sub=\"false\"></div>\n        \t<div core-menu=\"sidebar\" core-show-sub=\"false\"></div>\n            <div core-menu=\"sidebar\" core-show-sub=\"false\"></div>\n\t\t\t<div core-menu=\"menu\" core-show-sub=\"false\"></div>\n\t\t</nav>\n\t</div>\n</header>\n<div class=\"container-fluid\">\n\t<div class=\"row\">\n\t\t<div class=\"col-sm-3 col-md-2 sidebar\">\n        \t<div core-menu=\"context\" class=\"nav-sidebar\"></div>\n\t\t\t<div core-menu=\"sidebar\" class=\"nav-sidebar\"></div>\n\t\t</div>\n\t\t<div class=\"col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main\">\n\t\t\t<div class=\"status-message\">\n\t\t\t\t\t<div class=\"alert alert-danger clearfix\" ng-show=\"error !== undefined && error !== ''\">\n\t\t\t\t\t\t{literal}{{error}}{/literal}\n\t\t\t\t\t\t<button type=\"button\" class=\"close\" ng-click=\"close()\">&times;</button>\n                    </div>\n\t\t\t</div>\n\t\t\t<div ui-view=\"main\"></div>\n\t\t</div>\n\t</div>\n</div>\n</body>\n</html>\n{/template}",
       "templateName" : "core9.admin.dashboard.main",
       "handler" : "DashboardPlugins"
     }
+  }, {
+    "id" : "URE0Q5J2S12D",
+    "entry" : {
+      "_id" : "URE0Q5J2S12D",
+      "configtype" : "widget",
+      "name" : "dashboardlogin",
+      "handleroptions" : { },
+      "templateName" : "core9.admin.dashboard.login",
+      "template" : "{namespace core9.admin.dashboard}\n\n/**\n *\n */\n{template .login}\n<html lang=\"en\" class=\"core9 admin dashboard\">\n<head>\n  <title ng-bind=\"pageTitle\"></title>\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no\" />\n  <link href=\"//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css\" rel=\"stylesheet\">\n  <link href=\"//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css\" rel=\"stylesheet\">  \n  <link rel=\"stylesheet\" type=\"text/css\" href=\"/static/admin/core9-admin-cms-0.0.1.css\" />\n</head>\n<body>\n<header class=\"navbar navbar-inverse navbar-fixed-top\" role=\"navigation\">\n\t<div class=\"container-fluid\">\n\t\t<div class=\"navbar-header\">\n\t\t\t<button type=\"button\" class=\"navbar-toggle\" ng-click=\"collapseMenu = !collapseMenu\">\n\t\t\t\t<span class=\"sr-only\">Toggle navigation</span>\n\t\t\t\t<span class=\"icon-bar\"></span>\n\t\t\t\t<span class=\"icon-bar\"></span>\n\t\t\t\t<span class=\"icon-bar\"></span>\n\t\t\t</button>\n\t\t\t<a class=\"navbar-brand\" href=\"#\"><i class=\"fa fa-cogs\"></i>Core9 Admin Dashboard</a>\n\t\t</div>\n        <div class=\"nav navbar-nav navbar hidden-xs hidden-sm\"></div>\n\t\t<nav collapse=\"collapseMenu\" role=\"banner\">\n\t\t</nav>\n\t</div>\n</header>\n<div class=\"container-fluid\">\n\t<div class=\"row\">\n\t\t<div class=\"col-sm-3 col-md-2 sidebar\">\n\t\t</div>\n\t\t<div class=\"col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main\">\n          <form class=\"\" action=\"/system/login\" method=\"post\">\n          \t<input type=\"hidden\" name=\"path\" value=\"/admin\" />\n            <div class=\"form-group row\">\n              <label class=\"col-md-2 control-label\">Username</label>\n              <div class=\"col-md-8\">\n                <input name=\"username\" type=\"text\" class=\"form-control input-md\">\n              </div>\n            </div>\n            <div class=\"form-group row\">\n              <label class=\"col-md-2 control-label\">Password</label>\n              <div class=\"col-md-8\">\n                <input name=\"password\" type=\"password\" class=\"form-control input-md\">\n              </div>\n            </div>\n            <div class=\"form-group row\">\n              <div class=\"col-md-10\">\n                <button class=\"btn btn-success pull-right\" ng-click=\"login()\">Login</button>\n              </div>\n            </div>\n          </form>\n\t\t</div>\n\t</div>\n</div>\n</body>\n{/template}"
+    }
+  }, {
+    "id" : "QE9CV2LG14KJ",
+    "entry" : {
+      "_id" : "QE9CV2LG14KJ",
+      "configtype" : "pagemodel",
+      "name" : "dashboardlogin",
+      "templateName" : "dashboardlogin",
+      "path" : "/dashboard/login",
+      "components" : [ {
+        "name" : "dashboardlogin",
+        "globals" : { }
+      } ]
+    }
+  }, {
+    "id" : "VF0X28ZMQVCI",
+    "entry" : {
+      "_id" : "VF0X28ZMQVCI",
+      "name" : "users",
+      "configtype" : "content",
+      "label" : "Users",
+      "schema" : {
+        "title" : "users",
+        "type" : "object",
+        "properties" : {
+          "username" : {
+            "type" : "string"
+          },
+          "password" : {
+            "type" : "string"
+          },
+          "roles" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        }
+      },
+      "schemaOptions" : {
+        "username" : {
+          "label" : "Username",
+          "widget" : "standard",
+          "showInList" : true
+        },
+        "password" : {
+          "label" : "Password",
+          "widget" : "standard"
+        },
+        "roles" : {
+          "label" : "Roles",
+          "widget" : "standard",
+          "items" : {
+            "widget" : "standard"
+          }
+        }
+      }
+    }
+  }, {
+    "id" : "1JXZX0L0JANAP",
+    "entry" : {
+      "_id" : "1JXZX0L0JANAP",
+      "configtype" : "userrole",
+      "role" : "admin",
+      "permissions" : [ "dashboard:*", "*" ]
+    }
   } ],
-  "content" : [ ]
+  "content" : [ {
+    "id" : "users-R1AK88L505RT",
+    "entry" : {
+      "_id" : "R1AK88L505RT",
+      "contenttype" : "users",
+      "roles" : [ "admin" ],
+      "password" : "secret",
+      "username" : "root"
+    }
+  } ]
 }

@@ -1,3 +1,1584 @@
-// Core9 - Module: module-cms
-angular.module("core9Dashboard.account",["ui.router","core9Dashboard.menu"]).config(["$stateProvider",function(a){a.state("account",{url:"/account",views:{main:{controller:"AccountCtrl",templateUrl:"account/account.tpl.html"}},data:{pageTitle:"Home",sidebar:"account"}})}]).controller("AccountCtrl",["$scope",function(a){a.$watch("name",function(){"alert"===a.name&&alert("Hoi")})}]).run(["MenuService",function(a){a.add("main",{title:"Account",weight:"1000",link:"account"}),a.add("account",{title:"Delete",weight:"1000",link:"account"}),a.add("account",{title:"Edit",weight:"1200",link:"account"}),a.add("account",{title:"Back",weight:"1300",link:"account"})}]),angular.module("core9Dashboard.config",["ngResource","ui.router","core9Dashboard.menu"]).config(["$stateProvider",function(a){a.state("config",{url:"/config",views:{main:{controller:"ConfigCtrl",templateUrl:"config/config.tpl.html"}},data:{pageTitle:"Configuration"}})}]).controller("ConfigCtrl",["$scope","MenuService",function(a){a.title="Config"}]).factory("ConfigFactory",["$resource",function(a){return a("/admin/config/:configtype/:id",{configtype:"@configtype",id:"@_id"},{update:{method:"PUT"}})}]).run(["MenuService",function(a){a.add("main",{title:"Config",link:"config",weight:100})}]),angular.module("core9Dashboard.config.content",["ui.sortable","ui.router","core9Dashboard.config","core9Dashboard.menu","core9.formgenerator"]).config(["$stateProvider",function(a){a.state("configcontenttypelist",{url:"/config/content",views:{main:{controller:"ConfigContentCtrl",templateUrl:"config/content/content.tpl.html"}},data:{pageTitle:"Configuration",sidebar:"config"}}).state("configcontenttype",{url:"/config/contenttype/:id",views:{main:{controller:"ConfigContentTypeCtrl",templateUrl:"config/content/type.tpl.html"}},data:{pageTitle:"Configuration",sidebar:"config",context:"configcontenttype"}})}]).controller("ConfigContentCtrl",["$scope","ConfigFactory","$state",function(a,b,c){a.contenttypes=b.query({configtype:"content"}),a.addType=function(c){var d=new b;d.name=c,d.$save({configtype:"content"},function(b){a.contenttypes.push(b)})},a.editType=function(a){c.go("configcontenttype",{id:a._id})},a.removeType=function(c){c.$remove(function(){a.contenttypes=b.query({configtype:"content"})})}}]).controller("ConfigContentTypeCtrl",["$scope","ConfigFactory","$stateParams","$location","$state","MenuService",function(a,b,c,d,e){a.contenttype=b.get({configtype:"content",id:c.id}),a.state={},a.addField=function(b,c){void 0===a.contenttype.schema&&(a.contenttype.schema={title:a.contenttype.name,type:"object",properties:{}}),void 0===a.contenttype.schemaOptions&&(a.contenttype.schemaOptions={}),a.contenttype.schema.properties[c]={},a.contenttype.schemaOptions[c]={label:b},a.newLabel=a.newName=""},a.removeField=function(b){delete a.contenttype.schema.properties[b],delete a.contenttype.schemaOptions[b],e.go("configcontenttype")},a.editField=function(b){a.editfield=a.contenttype.schema.properties[b],a.editfieldOptions=a.contenttype.schemaOptions[b]},a.close=function(){delete a.editfield,delete a.editfieldOptions},a.save=function(){a.contenttype.$update(),e.go("configcontenttypelist")},a.remove=function(){a.contenttype.$remove(function(){d.path("/config/content")})}}]).run(["MenuService","FieldConfig",function(a){a.add("config",{title:"Content",link:"configcontenttypelist",weight:100})}]),angular.module("core9Dashboard.config.contentref",["core9.formgenerator","core9Dashboard.config"]).controller("ContentRefConfigController",["$scope","ConfigFactory",function(a,b){function c(){if(void 0!==a.data.contenttype)for(var b=0;b<a.contenttypes.length;b++)a.contenttypes[b].name===a.data.contenttype&&(a.contenttype=a.contenttypes[b],a.field.properties={key:{type:"string"},value:{type:"string"}})}a.contenttypes=b.query({configtype:"content"},function(){c()}),a.$watch("data.contenttype",function(){c()})}]).controller("ContentRefController",["$scope","ContentFactory",function(a,b){a.contentList={},b.query({contenttype:a.options.contenttype},function(b){for(var c=0;c<b.length;c++)a.contentList[b[c]._id]=b[c][a.options.contentfield]}),a.$watch("data",function(){void 0!==a.data&&(a.selected=a.data.value)}),a.$watch("selected",function(b,c){void 0!==b&&b!==c&&(a.data.key=a.contentList[a.selected],a.data.value=a.selected)})}]).run(["FieldConfig",function(a){a.get("object").addWidget("contentref",{template:"config/contentref/contentref.tpl.html",config:"config/contentref/contentref.config.tpl.html"}).save()}]),angular.module("core9Dashboard.content",["ui.router","ngResource","core9Dashboard.config.content","core9Dashboard.config.contentref","core9Dashboard.content.references","core9.formgenerator"]).factory("ContentFactory",["$resource",function(a){return a("/admin/content/:contenttype/:id",{contenttype:"@contenttype",id:"@_id"},{update:{method:"PUT"}})}]).config(["$stateProvider",function(a){a.state("content",{"abstract":!0,views:{main:{controller:"ContentCtrl",template:"<div ui-view></div>"}},data:{pageTitle:"Content",sidebar:"content",context:"contentcontext"}}).state("content.default",{url:"/content",controller:"ContentListCtrl",templateUrl:"content/contentlist.tpl.html"}).state("content.type",{url:"/content/:type",controller:"ContentListCtrl",templateUrl:"content/contentlist.tpl.html"}).state("content.item",{url:"/content/:type/:id",controller:"ContentItemCtrl",templateUrl:"content/content.item.tpl.html"})}]).controller("ContentCtrl",function(){}).controller("ContentListCtrl",["$scope","ConfigFactory","ContentFactory","$state","$stateParams",function(a,b,c,d,e){a.contenttypes=b.query({configtype:"content"},function(b){if(void 0!==e.type)for(var c=0;c<b.length;c++)b[c]._id===e.type&&(a.contenttype=b[c])}),a.$watch("contenttype",function(){void 0!==a.contenttype&&void 0!==a.contenttype.name&&(a.contentlist=c.query({contenttype:a.contenttype.name}))}),a.add=function(){var b=new c;b.$save({contenttype:a.contenttype.name},function(b){a.contentlist.push(b),d.go("content.item",{type:a.contenttype._id,id:b._id})})},a.edit=function(b){d.go("content.item",{type:a.contenttype._id,id:b._id})},a.remove=function(b){var d=new c(b);d.$remove(function(){a.contentlist=c.query({contenttype:a.contenttype.name})})}}]).controller("ContentItemCtrl",["$scope","$stateParams","$state","ContentFactory","ConfigFactory",function(a,b,c,d,e){a.contenttype=e.get({configtype:"content",id:b.type},function(){var c=d.get({contenttype:a.contenttype.name,id:b.id},function(){a.item=c})}),a.save=function(){a.item.$update(),c.go("content.type",{type:b.type})}}]).run(["MenuService","ConfigFactory",function(a,b){a.add("main",{title:"Content",weight:50,link:"content.default"}),a.add("content",{title:"Content",weight:0,link:"content.default"}),b.query({configtype:"content"},function(b){for(var c=0;c<b.length;c++)a.add("contentcontext",{title:b[c].label,weight:"50",link:'content.type({type: "'+b[c]._id+'"})'})})}]),angular.module("core9Dashboard.content.references",["ui.router","core9Dashboard.menu","core9Dashboard.config","core9Dashboard.content"]).config(["$stateProvider",function(a){a.state("contentreferences",{url:"/content/references",views:{main:{controller:"ContentReferencesCtrl",templateUrl:"content/references.tpl.html"}},data:{pageTitle:"Content references",sidebar:"content"}})}]).controller("ContentReferencesCtrl",["$scope","ConfigFactory","ContentFactory",function(a,b,c){a.contenttypes=b.query({configtype:"content"}),a.srcSearch={},a.dstSearch={},a.unreferenced=!1,a.$watch("unreferenced",function(){void 0!==a.sourceField&&(a.unreferenced?a.srcSearch[a.sourceField.name]="!":delete a.srcSearch[a.sourceField.name])}),a.getContentRefFields=function(b){if(void 0!==b){var c,d,e=[];for(var f in b)if("widget"===f&&"contentref"===b[f])e.push({name:"this",field:b});else if("object"==typeof b[f])for(c=a.getContentRefFields(b[f]),d=0;d<c.length;d++)"this"===c[d].name?"items"===f?c[d].field.qty="multiple":c[d].name=f:c[d].name=f+"."+c[d].name,e.push(c[d]);return e}},a.reset=function(b,c,d){a[c]={};var e=a[b][d._id];a[b]={},e?(delete a.pivotType,delete a.pivot):(a[b][d._id]=!0,a.pivot=d)},a.setSelectedDestItems=function(){if(void 0!==a.pivot){void 0===a.pivot[a.sourceField.name]&&(a.pivot[a.sourceField.name]=[]);for(var b=a.pivot[a.sourceField.name],c=0;c<b.length;c++)a.destIndex[b[c].value]=!0}},a.srcIndex={},a.selectSource=function(b){if(void 0===a.pivotType&&(a.pivotType="source"),"source"===a.pivotType)a.reset("srcIndex","destIndex",b),a.setSelectedDestItems();else{var c=a.srcIndex[b._id];if(c){for(var d=b[a.sourceField.name],e=0;e<d.length;e++)d[e].value===a.pivot._id&&b[a.sourceField.name].splice(e,1);a.srcIndex[b._id]=!1}else{var f=a.pivot[a.sourceField.field.contentfield],g=a.pivot._id;b[a.sourceField.name].push({key:f,value:g}),a.srcIndex[b._id]=!0}b.$update()}},a.setSelectedSrcItems=function(){for(var b=0;b<a.contentList.length;b++){void 0===a.contentList[b][a.sourceField.name]&&(a.contentList[b][a.sourceField.name]=[]);for(var c=a.contentList[b][a.sourceField.name],d=0;d<c.length;d++)c[d].value===a.pivot._id&&(a.srcIndex[a.contentList[b]._id]=!0)}},a.destIndex={},a.selectDestination=function(b){if(void 0===a.pivotType&&(a.pivotType="destination"),"destination"===a.pivotType)a.reset("destIndex","srcIndex",b),a.setSelectedSrcItems();else{var c=a.destIndex[b._id];if(c){for(var d=a.pivot[a.sourceField.name],e=0;e<d.length;e++)d[e].value===b._id&&a.pivot[a.sourceField.name].splice(e,1);a.destIndex[b._id]=!1}else{var f=b[a.sourceField.field.contentfield],g=b._id;a.pivot[a.sourceField.name].push({value:g,key:f}),a.destIndex[b._id]=!0}a.pivot.$update()}},a.$watch("source",function(){delete a.sourceField,void 0!==a.source&&(a.contentList=c.query({contenttype:a.source.name}),a.contentRefFields=a.getContentRefFields(a.source.schemaOptions))}),a.$watch("sourceField",function(){void 0!==a.sourceField&&(a.referencedList=c.query({contenttype:a.sourceField.field.contenttype}))})}]).run(["MenuService",function(a){a.add("content",{title:"References",weight:50,link:"contentreferences"})}]),angular.module("core9Dashboard.adminplugin.feature",["ui.bootstrap"]).controller("FeatureProcessorAdminPluginCtrl",["$scope",function(a){a.add=function(b,c){a.$parent.selected.push({module:b,file:c}),a.showForm=!1},a.remove=function(b){a.$parent.selected.splice(b,1)}}]),angular.module("core9.formgenerator",[]).factory("FieldConfig",["$templateCache",function(a){function b(a){angular.copy(a,this)}var c={};return b.get=function(a){return new b(c[a])},b.getAll=function(){var a=[];for(var b in c)a.push(b);return a},b.prototype.save=function(){return c[this.type]=this,c[this.type]},b.prototype.render=function(){return a.get(this.template)},b.prototype.addWidget=function(a,b){return void 0===this.widgets&&(this.widgets={}),this.widgets[a]=b,this},b.prototype.renderconfig=function(b){return a.get(this.widgets[b].config)},b}]).directive("cnSchemaGenerator",["$compile","$templateCache","FieldConfig",function(a,b,c){return{replace:!0,scope:{name:"=cnName",schema:"=cnSchema",data:"=cnData",options:"=cnOptions"},link:function(d,e){void 0!==d.name&&(void 0===d.options[d.name]&&(d.options[d.name]={}),d.options=d.options[d.name]),d.$watch("options",function(){void 0===d.options&&(d.options={widget:"standard",label:d.name}),void 0===d.options.widget&&(d.options.widget="standard"),void 0===d.options.label&&void 0!==d.name&&(d.options.label=d.name),d.render()}),d.$watch("schema",function(){d.render()}),d.render=function(){void 0!==d.schema&&void 0!==d.schema.type&&void 0!==d.options&&void 0!==d.options.widget&&(e.html(b.get(c.get(d.schema.type).widgets[d.options.widget].template)),a(e.contents())(d))}}}}]).directive("cnFieldConfig",["FieldConfig","$compile",function(a,b){return{replace:!0,scope:{field:"=",data:"="},link:function(c,d){c.$watch("field",function(e){d.html(""),b(d.contents())(c),void 0!==e&&(d.html(a.get(c.field.type).renderconfig(c.data.widget)),b(d.contents())(c))}),c.$watch("data.widget",function(e){d.html(""),b(d.contents())(c),void 0!==e&&(d.html(a.get(c.field.type).renderconfig(c.data.widget)),b(d.contents())(c))})}}}]).directive("cnFieldOptions",["$templateCache","$compile","FieldConfig",function(a,b,c){return{replace:!0,scope:{field:"=cnField",data:"=cnData"},link:function(d,e){d.fieldtypes=c.getAll(),d.$watch("field.type",function(){void 0!==d.field&&void 0!==d.field.type&&(d.fieldType=c.get(d.field.type))}),e.html(a.get("forms/field.tpl.html")),b(e.contents())(d)}}}]).controller("coreArrayController",["$scope","FieldConfig",function(a){a.name="items",a.addItem=function(){a.data.push("object"===a.schema.items.type?{}:"array"===a.schema.items.type?[]:"")}}]).controller("coreArrayConfigController",["$scope","FieldConfig",function(a,b){a.fieldtypes=b.getAll(),void 0===a.field.items&&(a.field.items={}),void 0===a.data.items&&(a.data.items={}),a.$watch("field.items.type",function(){void 0!==a.field&&void 0!==a.field.items&&void 0!==a.field.items.type&&(a.itemsfield=b.get(a.field.items.type))})}]).controller("coreObjectConfigController",["$scope","FieldConfig",function(a){void 0===a.field.properties&&(a.field.properties={}),a.addField=function(b,c){a.field.properties[c]={},a.data[c]={label:b},a.newLabel=a.newName=""},a.removeField=function(b){delete a.field.properties[b],delete a.data[b]},a.editField=function(b){a.editfield=a.field.properties[b],a.editfieldOptions=a.data[b]}}]).controller("coreObjectController",["$scope",function(a){a.addField=function(){console.log(a.data[a.name]),void 0===a.data[a.name]&&(a.data[a.name]={}),a.data[a.name][a.newField]=a.newValue,a.newField=a.newValue=""},a.removeField=function(b,c){delete a.data[b][c]},a.$watch("data",function(){if(void 0!==a.data&&void 0!==a.schema&&"object"===a.schema.type)for(var b in a.schema.properties)void 0===a.data[b]&&("object"===a.schema.properties[b].type&&(a.data[b]={}),"array"===a.schema.properties[b].type&&(a.data[b]=[]))})}]).controller("coreSelectController",["$scope",function(a){a.switch=function(b){a.$parent.data=b}}]).controller("coreGlobalSelectController",["$scope",function(a){a.switch=function(b){a.$parent.data.value=b}}]).run(["FieldConfig",function(a){new a({type:"string"}).addWidget("standard",{template:"forms/fields/textfield.tpl.html",config:"forms/fields/textfield.config.tpl.html"}).addWidget("select",{template:"forms/fields/select.tpl.html",config:"forms/fields/textfield.config.tpl.html"}).addWidget("textarea",{template:"forms/fields/textarea.tpl.html",config:"forms/fields/textarea.config.tpl.html"}).save(),new a({type:"integer"}).addWidget("standard",{template:"forms/fields/integer.tpl.html",config:"forms/fields/integer.config.tpl.html"}).save(),new a({type:"boolean"}).addWidget("standard",{template:"forms/fields/boolean.tpl.html",config:"forms/fields/boolean.config.tpl.html"}).save(),new a({type:"object"}).addWidget("standard",{template:"forms/fields/object.tpl.html",config:"forms/fields/object.config.tpl.html"}).addWidget("select_with_global",{template:"forms/fields/select_with_global.tpl.html",config:"forms/fields/textfield.config.tpl.html"}).addWidget("textfield_with_global",{template:"forms/fields/textfield_with_global.tpl.html",config:"forms/fields/textfield.config.tpl.html"}).save(),new a({type:"array"}).addWidget("standard",{template:"forms/fields/array.tpl.html",config:"forms/fields/array.config.tpl.html"}).save(),new a({type:"null"}).addWidget("standard",{template:"forms/fields/null.tpl.html",config:"forms/fields/null.config.tpl.html"}).save()}]),angular.module("core9Dashboard.home",["ui.router"]).config(["$stateProvider",function(a){a.state("home",{url:"/home",views:{main:{controller:"HomeCtrl",templateUrl:"home/home.tpl.html"}},data:{pageTitle:"Home",sidebar:"main"}})}]).controller("HomeCtrl",function(){}),angular.module("core9Dashboard.menu",[]).service("MenuService",["$rootScope",function(a){return{menu:[],add:function(b,c){void 0===this.menu[b]&&(this.menu[b]=[]),this.menu[b].push(c),a.$broadcast("MenuService.update",this.menu)}}}]).directive("coreMenu",["MenuService",function(a){return{replace:!0,restrict:"A",templateUrl:"menu/menu.tpl.html",scope:{menu:"=coreMenu"},link:function(b){b.$watch("menu",function(){b.thismenu=a.menu[b.menu]})}}}]).directive("coreMenuItem",["$compile",function(a){return{restrict:"A",scope:{item:"=coreMenuItem"},link:function(b,c){var d=b.item.template;if(void 0!==d){var e=angular.element(d);a(e)(b),c.replaceWith(e)}}}}]),angular.module("core9Dashboard.menuEditor",["ui.router","ui.bootstrap","ui.sortable","core9Dashboard.config","core9Dashboard.menu"]).config(["$stateProvider",function(a){a.state("menueditor",{url:"/config/menueditor",views:{main:{controller:"MenuEditorCtrl",templateUrl:"menueditor/menulist.tpl.html"}},data:{pageTitle:"Menu",sidebar:"config"}}).state("menueditormenu",{url:"/config/menueditor/:id",views:{main:{controller:"MenuEditorMenuCtrl",templateUrl:"menueditor/menu.tpl.html"}},data:{pageTitle:"Menu",sidebar:"config"}})}]).factory("MenuEntryTypes",function(){var a={};return this.getMenuEntryTypes=function(){return a},this.getMenuEntryTypeTemplate=function(b){return a[b].templateUrl},this.getMenuEntryConfigTemplate=function(b){return a[b].configUrl},this.registerMenuEntryType=function(b){return a[b.id]=b,this},this}).directive("cnMenuItem",["$compile","$templateCache","MenuEntryTypes",function(a,b,c){return{replace:!0,scope:{item:"=cnItem",parent:"=cnParent",state:"=cnState",clazz:"@cnClass"},link:function(d,e){d.$watch("item.type",function(){if(void 0!==d.item.type){var f=a(b.get(c.getMenuEntryTypeTemplate(d.item.type)))(d);e.replaceWith(f)}}),d.edit=function(){d.state.parent=d.parent,d.state.showConfig=!1,d.state.showConfig=!0,d.state.editItem=d.item},d.sortableOptions={connectWith:"ul"}}}}]).directive("cnMenuItemConfig",["$compile","$templateCache","MenuEntryTypes",function(a,b,c){return{replace:!1,scope:{menu:"=cnMenu",state:"=cnState"},link:function(d,e){d.menuEntryTypes=c.getMenuEntryTypes(),d.$watch("state.editItem.type",function(){if(void 0!==d.state.editItem.type){d.newItem={type:c.getMenuEntryTypes()[d.state.editItem.type].childs[0]};var f=b.get(c.getMenuEntryConfigTemplate(d.state.editItem.type)),g=b.get("menueditor/entryactions.tpl.html"),h=a(f+g)(d);e.html(h)}}),d.addItem=function(){void 0===d.state.editItem.items&&(d.state.editItem.items=[]),d.state.editItem.items.push(d.newItem),d.newItem={type:d.newItem.type},d.refreshMenu()},d.remove=function(){var a=d.state.parent.items.indexOf(d.state.editItem);d.state.parent.items.splice(a,1),console.log(d.state.parent.items),d.state.parent=null,d.state.editItem=null,d.state.showConfig=!1,d.refreshMenu()},d.refreshMenu=function(){d.state.fresh=!1,d.state.fresh=!0}}}}]).controller("MenuEditorCtrl",["$scope","$state","ConfigFactory",function(a,b,c){a.menus=c.query({configtype:"menu"}),a.add=function(d){var e=new c({configtype:"menu"});e.name=d,e.type="nav",e.$save(function(c){a.menus.push(c),b.go("menueditormenu",{id:c._id})})},a.edit=function(a){b.go("menueditormenu",{id:a._id})},a.remove=function(b){b.$remove(function(){a.menus=c.query({configtype:"menu"})})}}]).controller("MenuEditorMenuCtrl",["$scope","$stateParams","ConfigFactory","MenuEntryTypes",function(a,b,c){a.state={fresh:!0},a.menu=c.get({configtype:"menu",id:b.id}),a.save=function(){a.menu.$update()},a.remove=function(){var b=a.state.parent.items.indexOf(a.state.editItem);console.log(b),b>-1&&a.state.parent.items.splice(b,1)}}]).run(["MenuService","MenuEntryTypes",function(a,b){b.registerMenuEntryType({id:"nav",name:"Menu",templateUrl:"menueditor/entrytypes/nav.tpl.html",configUrl:"menueditor/entrytypes/ul.config.tpl.html",childs:["navitem","li"]}).registerMenuEntryType({id:"navitem",name:"Top level entry",templateUrl:"menueditor/entrytypes/navitem.tpl.html",configUrl:"menueditor/entrytypes/li.config.tpl.html",childs:["ul","text"]}).registerMenuEntryType({id:"li",name:"List Item",templateUrl:"menueditor/entrytypes/li.tpl.html",configUrl:"menueditor/entrytypes/li.config.tpl.html",childs:["ul","text"]}).registerMenuEntryType({id:"ul",name:"List",templateUrl:"menueditor/entrytypes/ul.tpl.html",configUrl:"menueditor/entrytypes/ul.config.tpl.html",childs:["li"]}).registerMenuEntryType({id:"text",name:"Text",templateUrl:"menueditor/entrytypes/text.tpl.html",configUrl:"menueditor/entrytypes/text.config.tpl.html",childs:[]}),a.add("config",{title:"Menu",weight:150,link:"menueditor"})}]),angular.module("core9Dashboard",["ui.router","core9Dashboard.extensions","core9Dashboard.adminplugin.feature"]).config(["$urlRouterProvider",function(a){a.otherwise("/home")}]).controller("AppCtrl",["$state","$scope",function(a,b){b.$on("$stateChangeSuccess",function(c,d){angular.isDefined(d.data.pageTitle)&&(b.pageTitle=d.data.pageTitle+" | Core9 Admin Dashboard"),b.context=void 0!==a.current.data.context?a.current.data.context:"",b.sidebar=void 0!==a.current.data.sidebar?a.current.data.sidebar:a.current.name}),b.$on("$error",function(a,c){b.error=c}),b.close=function(){b.error=""},b.collapseMenu=!0,b.menu="main",b.sidebar="main"}]).filter("getByProperty",function(){return function(a,b,c){for(var d=0,e=c.length;e>d;d++)if(c[d][a]===b)return c[d];return null}}),angular.module("core9Dashboard.admin.dashboard",["ui.router","core9Dashboard.home","core9Dashboard.config","core9Dashboard.content","core9Dashboard.menu","core9Dashboard.menuEditor","core9Dashboard.account","core9.formgenerator","templates-module-cms"]).run(["MenuService",function(a){a.add("main",{title:"Dashboard",link:"home",weight:0}),a.add("back",{title:"Back",template:'<a href="javascript:window.history.back()">Back</a>',weight:0})}]),angular.module("templates-module-cms",["account/account.tpl.html","config/config.tpl.html","config/content/content.tpl.html","config/content/type.tpl.html","config/contentref/contentref.config.tpl.html","config/contentref/contentref.tpl.html","content/content.item.tpl.html","content/contentlist.tpl.html","content/references.tpl.html","featureprocessor/adminplugin.tpl.html","forms/field.tpl.html","forms/fields/array.config.tpl.html","forms/fields/array.tpl.html","forms/fields/boolean.config.tpl.html","forms/fields/boolean.tpl.html","forms/fields/integer.config.tpl.html","forms/fields/integer.tpl.html","forms/fields/object.config.tpl.html","forms/fields/object.tpl.html","forms/fields/select.tpl.html","forms/fields/select_with_global.tpl.html","forms/fields/textarea.config.tpl.html","forms/fields/textarea.tpl.html","forms/fields/textfield.config.tpl.html","forms/fields/textfield.tpl.html","forms/fields/textfield_with_global.tpl.html","home/home.tpl.html","menu/menu.tpl.html","menueditor/entryactions.tpl.html","menueditor/entrytypes/li.config.tpl.html","menueditor/entrytypes/li.tpl.html","menueditor/entrytypes/nav.tpl.html","menueditor/entrytypes/navitem.tpl.html","menueditor/entrytypes/text.config.tpl.html","menueditor/entrytypes/text.tpl.html","menueditor/entrytypes/ul.config.tpl.html","menueditor/entrytypes/ul.tpl.html","menueditor/menu.tpl.html","menueditor/menulist.tpl.html"]),angular.module("account/account.tpl.html",[]).run(["$templateCache",function(a){a.put("account/account.tpl.html",'<h1 class="page-header">Account information</h1>\n\n<!-- Text input-->\n<div class="form-group">\n  <label class="col-md-4 control-label" for="textinput">Name: {{name}}</label>  \n  <div class="col-md-8">\n  	<input ng-model="name" type="text" placeholder="placeholder" class="form-control input-md">\n  </div>\n</div>')}]),angular.module("config/config.tpl.html",[]).run(["$templateCache",function(a){a.put("config/config.tpl.html",'<h1 class="page-header">{{title}} <small><i class="icon-double-angle-right"></i> configuration</small></h1>\n<blockquote>Select a configuration type from the sidebar menu</blockquote>')}]),angular.module("config/content/content.tpl.html",[]).run(["$templateCache",function(a){a.put("config/content/content.tpl.html",'<h1 class="page-header">Content Types<small><i class="icon-double-angle-right"></i> manage your content types</small></h1>\n<table class="table table-striped">\n  <tr>\n    <th>Name</th>\n    <th>Actions</th>\n  </tr>\n  <tr ng-repeat="type in contenttypes">\n    <td>{{type.name}}</td>\n    <td>\n      <button class="btn btn-success" ng-click="editType(type)"><i class="fa fa-pencil"></i></button>\n      <button class="btn btn-danger" ng-click="removeType(type)"><i class="fa fa-trash-o"></i></button>\n    </td>\n  </tr>\n  <tr>\n    <td>\n      <div class="form-group">\n        <input ng-model="newName" type="text" placeholder="New content type name" class="form-control input-md" />\n      </div>\n    </td>\n    <td><button class="btn btn-success" ng-click="addType(newName)"><i class="fa fa-plus"></i> New content type</button></td>\n  </tr>\n</table>')}]),angular.module("config/content/type.tpl.html",[]).run(["$templateCache",function(a){a.put("config/content/type.tpl.html",'<h1 class="page-header">{{contenttype.label}} content<small><i class="icon-double-angle-right"></i> manage your \'{{contenttype.name}}\' content type</small></h1>\n<form class="col-md-12">\n  <fieldset>\n    <legend>Configuration</legend>\n    <div class="form-group row">\n      <label class="col-md-2 control-label" for="">Label</label>  \n      <div class="col-md-8">\n        <input ng-model="contenttype.label" type="text" placeholder="Label" class="form-control input-md" />\n      </div>\n    </div>\n	</fieldset>\n	<fieldset>\n		<legend>Fields</legend>\n		<table class="table table-striped">\n			<thead>\n				<tr>\n					<th>Order</th>\n					<th>Label</th>\n					<th>Name</th>\n					<th>Actions</th>\n				</tr>\n			</thead>\n			<tbody ui-sortable ng-model="contenttype.schema.properties">\n				<tr ng-repeat="(fieldname, field) in contenttype.schema.properties">\n					<td><i class="fa fa-arrows"></i></td>\n					<td><input type="text" ng-model="contenttype.schemaOptions[fieldname].label" placeholder="Label" class="form-control input-md" /></td>\n					<td><input type="text" ng-model="fieldname" class="form-control input-md" disabled/></td>\n					<td>\n						<button class="btn btn-success" ng-click="editField(fieldname)"><i class="fa fa-pencil"></i></button>\n						<button class="btn btn-danger" ng-click="removeField(fieldname)"><i class="fa fa-trash-o"></i></button>\n					</td>\n				</tr>\n			</tbody>\n			<tfooter>\n				<tr>\n					<td></td>\n					<td><input type="text" ng-model="newLabel" placeholder="Label" class="form-control input-md" /></td>\n					<td><input type="text" ng-model="newName" placeholder="name" class="form-control input-md" /></td>\n					<td><button class="btn btn-success" ng-click="addField(newLabel, newName)"><i class="fa fa-plus"></i> Add</button></td>\n				</tr>\n			</tfooter>\n		</table>\n	</fieldset>\n	<div cn-field-options cn-data="editfieldOptions" cn-field="editfield" ng-show="editfield !== undefined" />\n	<fieldset>\n		<legend>Actions</legend>\n		<div>\n			<button class="btn btn-success" ng-click="save()"><i class="fa fa-floppy-o"></i> Save</button>\n			<button class="btn btn-danger" ng-click="remove()"><i class="fa fa-trash-o"></i> Delete</button>\n		</div>\n	</fieldset>\n</form>')}]),angular.module("config/contentref/contentref.config.tpl.html",[]).run(["$templateCache",function(a){a.put("config/contentref/contentref.config.tpl.html",'<div ng-controller="ContentRefConfigController">\n	<fieldset>\n		<legend>Content reference</legend>\n    <div class="form-group row">\n      <label class="col-md-2 control-label" for="">Content Type</label>  \n      <div class="col-md-8">\n        <select ng-options="contenttype.name as contenttype.label for contenttype in contenttypes" ng-model="data.contenttype" class="form-control input-md"></select>\n      </div>\n    </div>\n    <div class="form-group row">\n      <label class="col-md-2 control-label" for="">Select field</label>  \n      <div class="col-md-8">\n        <select ng-options="key as key for (key, value) in contenttype.schema.properties" ng-model="data.contentfield" class="form-control input-md"></select>\n      </div>\n    </div>\n	</fieldset>\n</div>')}]),angular.module("config/contentref/contentref.tpl.html",[]).run(["$templateCache",function(a){a.put("config/contentref/contentref.tpl.html",'<div ng-controller="ContentRefController">\n  <div class="form-group row">\n    <div class="col-md-10">\n      <select ng-options="key as value for (key, value) in contentList" ng-model="selected" class="form-control input-md"></select>\n    </div>\n  </div>\n</div>')}]),angular.module("content/content.item.tpl.html",[]).run(["$templateCache",function(a){a.put("content/content.item.tpl.html",'<div class="page-header">\n	<h1>Content <small><i class="icon-double-angle-right"></i> manage your content</small></h1>\n</div>\n<div>\n	<div cn-schema-generator cn-schema="contenttype.schema" cn-data="item" cn-options="contenttype.schemaOptions" />\n</div>\n<div>\n	<button class="btn btn-success" ng-click="save()"><i class="fa fa-floppy-o"></i> Save</button>\n</div>')}]),angular.module("content/contentlist.tpl.html",[]).run(["$templateCache",function(a){a.put("content/contentlist.tpl.html",'<h1 class="page-header">Content <small><i class="icon-double-angle-right"></i> manage your content</small></h1>\n<div class="form-group row">\n<label class="col-md-2 control-label" for="">Content type</label>  \n  <div class="col-md-8">\n    <div class="col-md-5">\n      <select ng-options="type as type.label for type in contenttypes" ng-model="contenttype" class="form-control input-md"></select>\n    </div>\n    <div class="col-md-3" ng-show="contenttype">\n      <button class="btn btn-success" ng-click="add()"><i class="fa fa-plus"></i> New {{contenttype.label}}</button>\n    </div>\n  </div>\n</div>\n<table class="table table-striped" ng-show="contentlist.length > 0">\n	<thead>\n		<tr>\n			<th ng-repeat="(fieldname, field) in contenttype.schema.properties" ng-show="contenttype.schemaOptions[fieldname].showInList">\n				{{contenttype.schemaOptions[fieldname].label}}\n			</th>\n			<th>Actions</th>\n		</tr>\n	</thead>\n	<tbody>\n		<tr ng-repeat="content in contentlist">\n			<td ng-repeat="(fieldname, field) in contenttype.schema.properties" ng-show="contenttype.schemaOptions[fieldname].showInList">\n				<a ng-click="edit(content)">{{content[fieldname]}}</a>\n			</td>\n			<td>\n				<button class="btn btn-success" ng-click="edit(content)"><i class="fa fa-pencil"></i></button>\n				<button class="btn btn-danger" ng-click="remove(content)"><i class="fa fa-trash-o"></i></button>\n			</td>\n		</tr>\n	</tbody>\n</table>\n<div ng-show="contenttype !== undefined && contentlist.length == 0">\n	No {{contenttype.label}} content created yet.\n</div>\n<div ng-show="contenttype === undefined">\n	Select a content type first\n</div>')}]),angular.module("content/references.tpl.html",[]).run(["$templateCache",function(a){a.put("content/references.tpl.html",'<h1 class="page-header">Content references<small><i class="icon-double-angle-right"></i> manage your relations</small></h1>\n<fieldset>\n  <legend>Options</legend>\n  <div class="row">\n  	<div class="col-md-6">\n      <div class="form-group row">\n        <label class="col-md-2 control-label" for="">Source</label>\n        <div class="col-md-10">\n          <button type="button" class="form-control btn btn-default dropdown-toggle">{{source.name}}</button>\n          <ul class="dropdown-menu selectbox">\n            <li ng-repeat="contenttype in contenttypes"><a ng-click="$parent.source = contenttype">{{contenttype.name}}</a></li>\n          </ul>\n        </div>\n      </div>\n    </div>\n    <div class="col-md-6">\n      <div class="form-group row" ng-show="source !== undefined">\n        <label class="col-md-2 control-label" for="">Field</label>\n        <div class="col-md-10">\n          <button type="button" class="form-control btn btn-default dropdown-toggle">{{sourceField.name}}</button>\n          <ul class="dropdown-menu selectbox">\n            <li ng-repeat="field in contentRefFields"><a ng-click="$parent.sourceField = {name: field.name, field: field.field}">{{field.name}}</a></li>\n          </ul>\n        </div>\n      </div>\n    </div>\n  </div>\n\n  <div class="row" ng-show="sourceField !== undefined">\n    <div class="col-md-6">\n      <div class="form-group">\n        <div class="input-group row">\n          <span class="input-group-addon"><i class="fa fa-search"></i></span>\n          <input type="text" class="form-control" placeholder="Search" ng-model="srcSearch.title">\n          <span class="input-group-addon" ng-click="unreferenced = !unreferenced"><i class="fa" ng-class="{\'fa-chain-broken\': unreferenced, \'fa-link\': !unreferenced}" title="Show unreferenced only"></i></span>\n        </div>\n      </div>\n      <div class="form-group">\n        <div class="list-group row">\n          <a ng-repeat="content in contentList | filter:srcSearch" class="list-group-item" ng-class="{active: $parent.srcIndex[content._id] === true}" ng-click="selectSource(content)">{{content.title}}</a>\n        </div>\n      </div>\n    </div>\n    <div class="col-md-6">\n      <div class="form-group">\n        <div class="input-group">\n          <span class="input-group-addon"><i class="fa fa-search"></i></span>\n          <input type="text" class="form-control" placeholder="Search" ng-model="dstSearch[sourceField.field.contentfield]">\n        </div>\n      </div>\n      <div class="form-group">\n        <div class="list-group">\n          <a ng-repeat="reference in referencedList | filter:dstSearch" class="list-group-item" ng-class="{active: $parent.destIndex[reference._id] === true}" ng-click="selectDestination(reference)">{{reference[sourceField.field.contentfield]}}</a>\n        </div>\n      </div>\n    </div>\n  </div>\n</fieldset>')
-}]),angular.module("featureprocessor/adminplugin.tpl.html",[]).run(["$templateCache",function(a){a.put("featureprocessor/adminplugin.tpl.html",'<div ng-controller="FeatureProcessorAdminPluginCtrl">\n	<div class="input-group col-md-12">\n		<button class="btn btn-success" style="width: 100%" ng-click="showForm = !showForm">Add plugin</button>\n	</div>\n	<div ng-if="showForm">\n		<div class="form-group">\n			<div class="input-group">\n				<label class="col-md-12 control-label">ngModule</label>  \n				<div class="col-md-12">\n					<input ng-model="module" type="text" placeholder="e.g. core9Dashboard.files" class="form-control input-md">\n					<span class="help-block">Your angular module name</span>  \n				</div>\n			</div>\n			<div class="input-group">\n	  			<label class="col-md-12 control-label">jsPath</label>  \n	  			<div class="col-md-12">\n	  				<input ng-model="file" type="text" placeholder="e.g. /static/dashboard/plugins/plugin-files.js" class="form-control input-md">\n	  				<span class="help-block">Your js code path</span>  \n	  			</div>\n			</div>\n		</div>\n		<div class="alert alert-warning">Note: you must add your js files manually (via the files feature type).</div>\n		<button class="btn btn-success" ng-click="add(module, file)">Add</button>\n	</div>\n	<ul class="list-group">\n		<li class="list-group-item" ng-repeat="adminplugin in $parent.selected">\n			<span class="badge" ng-click="remove($index)"><i class=\'fa fa-trash-o\'></i></span>\n			{{adminplugin.module}}\n		</li>\n	</ul>\n</div>\n')}]),angular.module("forms/field.tpl.html",[]).run(["$templateCache",function(a){a.put("forms/field.tpl.html",'<fieldset>\n	<legend>Field {{field.fieldname}}</legend>\n  <div class="form-group row">\n    <label class="col-md-2 control-label" for="">Type</label>  \n    <div class="col-md-8">\n      <select ng-options="type as type for type in fieldtypes" ng-model="field.type" class="form-control input-md"></select>\n    </div>\n  </div>\n  <div class="form-group row">\n    <label class="col-md-2 control-label" for="">Widget</label>  \n    <div class="col-md-8">\n      <select ng-options="widgetname as widgetname for (widgetname, widget) in fieldType.widgets" ng-model="data.widget" class="form-control input-md"></select>\n    </div>\n  </div>\n  <div cn-field-config field="field" data="data"></div>\n  <div class="form-group row">\n    <label class="col-md-2 control-label" for="checkboxes">Show in list</label>\n    <div class="col-md-2">\n      <label class="checkbox-inline" for="showinlist">\n        <input type="checkbox" id="showinlist" ng-model="data.showInList"> Show\n      </label>\n    </div>\n  </div>\n  <div>\n    <button class="btn btn-success" ng-click="$parent.close()">Close</button>\n  </div>\n</fieldset>\n')}]),angular.module("forms/fields/array.config.tpl.html",[]).run(["$templateCache",function(a){a.put("forms/fields/array.config.tpl.html",'<div ng-controller="coreArrayConfigController">\n	<fieldset>\n		<legend>Array configuration</legend>\n    <div class="form-group row">\n      <label class="col-md-2 control-label" for="">Widget</label>  \n      <div class="col-md-8">\n        <select ng-options="type as type for type in fieldtypes" ng-model="field.items.type" class="form-control input-md"></select>\n      </div>\n    </div>\n    <div class="form-group row">\n      <label class="col-md-2 control-label" for="">Widget</label>  \n      <div class="col-md-8">\n        <select ng-options="widgetname as widgetname for (widgetname, widget) in itemsfield.widgets" ng-model="data.items.widget" class="form-control input-md"></select>\n      </div>\n    </div>\n		<div cn-field-config field="field.items" data="data.items" />\n	</fieldset>\n</div>')}]),angular.module("forms/fields/array.tpl.html",[]).run(["$templateCache",function(a){a.put("forms/fields/array.tpl.html",'<div class="row" ng-controller="coreArrayController">\n  <label class="col-md-2 control-label">{{options.label}}</label>\n  <div class="col-md-10">\n    <table class="table table-striped">\n      <tr>\n        <th>Item</th>\n        <th>Actions</th>\n      </tr>\n      <tr ng-repeat="item in data track by $index">\n        <td>\n          <div cn-schema-generator cn-name="name" cn-schema="schema.items" cn-data="data[$index]" cn-options="options"></div>\n        </td>\n        <td>\n          <button class="btn btn-danger" ng-click="data.splice($index, 1)">Remove</button>\n        </td>\n      </tr>\n      <tr>\n        <td>Add new item</td>\n        <td>\n          <button class="btn btn-success" ng-click="addItem()">Add</button>\n        </td>\n      </tr>\n    </table>\n  </div>\n</div>')}]),angular.module("forms/fields/boolean.config.tpl.html",[]).run(["$templateCache",function(a){a.put("forms/fields/boolean.config.tpl.html","No options available.")}]),angular.module("forms/fields/boolean.tpl.html",[]).run(["$templateCache",function(a){a.put("forms/fields/boolean.tpl.html",'<div class="input-group">\n	<span class="input-group-addon"><input type="checkbox" ng-model="data" /></span>\n	<div class="form-control">{{options.label}}</div>\n</div>')}]),angular.module("forms/fields/integer.config.tpl.html",[]).run(["$templateCache",function(a){a.put("forms/fields/integer.config.tpl.html",'<div class="form-group row">\n  <label class="col-md-2 control-label" for="">Minimum</label>  \n  <div class="col-md-8">\n    <input ng-model="data.minimum" type="number" class="form-control input-md" />\n  </div>\n</div>\n<div class="form-group row">\n  <label class="col-md-2 control-label" for="">Maximum</label>  \n  <div class="col-md-8">\n    <input ng-model="data.maximum" type="number" class="form-control input-md" />\n  </div>\n</div>')}]),angular.module("forms/fields/integer.tpl.html",[]).run(["$templateCache",function(a){a.put("forms/fields/integer.tpl.html",'<div class="form-group row">\n  <label class="col-md-2 control-label">{{options.label}}</label>  \n  <div class="col-md-8">\n    <input ng-model="data" type="number" class="form-control input-md" />\n  </div>\n</div>')}]),angular.module("forms/fields/object.config.tpl.html",[]).run(["$templateCache",function(a){a.put("forms/fields/object.config.tpl.html",'<div ng-controller="coreObjectConfigController">\n	<fieldset>\n		<legend>Object configuration</legend>\n		<table class="table table-striped">\n      <thead>\n        <tr>\n          <th>Order</th>\n          <th>Label</th>\n          <th>Name</th>\n          <th>Actions</th>\n        </tr>\n      </thead>\n      <tbody ui-sortable ng-model="field.properties">\n        <tr ng-repeat="(fieldname, field) in field.properties">\n          <td><i class="fa fa-arrows"></i></td>\n          <td><input type="text" ng-model="data[fieldname].label" placeholder="Label" class="form-control input-md" /></td>\n          <td><input type="text" ng-model="fieldname" class="form-control input-md" disabled /></td>\n          <td>\n            <button class="btn btn-success" ng-click="editField(fieldname)"><i class="fa fa-pencil"></i></button>\n            <button class="btn btn-danger" ng-click="removeField(fieldname)"><i class="fa fa-trash-o"></i></button>\n          </td>\n        </tr>\n      </tbody>\n      <tfooter>\n        <tr>\n          <td></td>\n          <td><input type="text" ng-model="newLabel" placeholder="Label" class="form-control input-md"  /></td>\n          <td><input type="text" ng-model="newName" placeholder="name" class="form-control input-md" /></td>\n          <td><button class="btn btn-success" ng-click="addField(newLabel, newName)"><i class="fa fa-plus"></i> Add</button></td>\n        </tr>\n      </tfooter>\n    </table>\n  </fieldset>\n  <div cn-field-options cn-data="editfieldOptions" cn-field="editfield" ng-show="editfield !== undefined" />\n</div>')}]),angular.module("forms/fields/object.tpl.html",[]).run(["$templateCache",function(a){a.put("forms/fields/object.tpl.html",'<div class="schema-type-object schema-type-object-{{name}}" ng-controller="coreObjectController">\n	<div ng-repeat="(innername, innerproperty) in schema.properties track by $index">\n		<div cn-schema-generator cn-name="innername" cn-schema="innerproperty" cn-data="data[innername]" cn-options="options"/>\n	</div>\n</div>\n')}]),angular.module("forms/fields/select.tpl.html",[]).run(["$templateCache",function(a){a.put("forms/fields/select.tpl.html",'<div class="input-group" ng-controller="coreSelectController">\n  <div class="form-group row">\n    <label class="col-md-2 control-label" for="">{{options.label}}</label>\n    <div class="col-md-10">\n      <button type="button" class="form-control btn btn-default dropdown-toggle">{{options.values[data]}}<span class="caret"></button>\n      <ul class="dropdown-menu selectbox">\n        <li ng-repeat="(id, name) in options.values track by $index"><a ng-click="switch(id)">{{name}} (ID: {{id}})</a></li>\n      </ul>\n    </div>\n  </div>\n</div>\n')}]),angular.module("forms/fields/select_with_global.tpl.html",[]).run(["$templateCache",function(a){a.put("forms/fields/select_with_global.tpl.html",'<div class="input-group" ng-controller="coreGlobalSelectController">\n  <span class="input-group-addon">{{options.label}}</span>\n 	<span class="input-group-addon"><input type="checkbox" ng-model="data.global" /> Global</span>\n  <button type="button" class="btn btn-default form-control dropdown-toggle" ng-disabled="data.global">{{options.values[data.value]}}<span class="caret"></span>\n  </button>\n  <ul class="dropdown-menu selectbox">\n    <li ng-repeat="(id, name) in options.values track by $index"><a ng-click="switch(id)">{{name}} (ID: {{id}})</a></li>\n  </ul>\n</div>')}]),angular.module("forms/fields/textarea.config.tpl.html",[]).run(["$templateCache",function(a){a.put("forms/fields/textarea.config.tpl.html",'<div class="form-group row">\n  <label class="col-md-2 control-label" for="">Rows</label>  \n  <div class="col-md-8">\n    <input ng-model="data.rows" type="number" class="form-control input-md" />\n  </div>\n</div>\n<div class="form-group row">\n  <label class="col-md-2 control-label" for="">Columns</label>  \n  <div class="col-md-8">\n    <input ng-model="data.columns" type="number" class="form-control input-md" />\n  </div>\n</div>')}]),angular.module("forms/fields/textarea.tpl.html",[]).run(["$templateCache",function(a){a.put("forms/fields/textarea.tpl.html",'<div class="form-group row">\n  <label class="col-md-2 control-label" for="textarea">{{options.label}}</label>\n  <div class="col-md-10">                     \n    <textarea class="form-control" rows="{{options.rows}}" cols="{{options.columns}}" ng-model="data"></textarea>\n  </div>\n</div>')}]),angular.module("forms/fields/textfield.config.tpl.html",[]).run(["$templateCache",function(a){a.put("forms/fields/textfield.config.tpl.html",'<div class="form-group row">\n  <label class="col-md-2 control-label" for="">Pattern (optional)</label>  \n  <div class="col-md-8">\n    <input ng-model="data.pattern" type="text" placeholder="Regular expression" class="form-control input-md" />\n  </div>\n</div>')}]),angular.module("forms/fields/textfield.tpl.html",[]).run(["$templateCache",function(a){a.put("forms/fields/textfield.tpl.html",'<div class="form-group row">\n  <label class="col-md-2 control-label">{{options.label}}</label>  \n  <div class="col-md-8">\n    <input ng-model="data" type="text" ng-pattern="{{options.pattern}}" class="form-control input-md" />\n  </div>\n</div>')}]),angular.module("forms/fields/textfield_with_global.tpl.html",[]).run(["$templateCache",function(a){a.put("forms/fields/textfield_with_global.tpl.html",'<div class="form-group row">\n  <label class="col-md-2 control-label">{{options.label}}</label>  \n  <div class="col-md-8">\n    <div class="input-group">\n      <span class="input-group-addon"><input type="checkbox" ng-model="data.global" /> Global</span>\n      <input type="text" ng-disabled="data.global" class="form-control" ng-model="data.value" ng-pattern="{{options.pattern}}" />\n    </div>\n  </div>\n</div>')}]),angular.module("home/home.tpl.html",[]).run(["$templateCache",function(a){a.put("home/home.tpl.html",'<div class="page-header">\n  <h1>Dashboard <small><i class="icon-double-angle-right"></i> manage your webshop</small></h1>\n</div>')}]),angular.module("menu/menu.tpl.html",[]).run(["$templateCache",function(a){a.put("menu/menu.tpl.html",'<ul class="nav" ng-if="thismenu.length > 0">\n	<li ng-repeat="item in thismenu|orderBy:\'weight\'" ui-sref-active="active">\n    <a ui-sref="{{item.link}}" core-menu-item="item">{{item.title}}</a>\n	</li>\n</ul>')}]),angular.module("menueditor/entryactions.tpl.html",[]).run(["$templateCache",function(a){a.put("menueditor/entryactions.tpl.html",'<fieldset>\n	<legend>Menu entry actions</legend>\n	<button class="btn btn-danger" ng-show="state.parent !== undefined" ng-click="remove()">Remove</button>\n	<button class="btn btn-warning" ng-click="state.showConfig = false">Close</button>\n</fieldset>')}]),angular.module("menueditor/entrytypes/li.config.tpl.html",[]).run(["$templateCache",function(a){a.put("menueditor/entrytypes/li.config.tpl.html",'<div class="form-group row">\n  <label class="col-md-2 control-label" for="">Name</label>  \n  <div class="col-md-8">\n    <input ng-model="state.editItem.name" type="text" placeholder="Name" class="form-control input-md" />\n  </div>\n</div>\n<div class="form-group row">\n  <label class="col-md-2 control-label" for="">Link</label>  \n  <div class="col-md-8">\n    <input ng-model="state.editItem.link" type="text" placeholder="Classes" class="form-control input-md" />\n  </div>\n</div>\n<div class="row">\n  <fieldset class="col-md-12">\n    <legend>New subitem</legend>\n    <div class="input-group">\n      <div class="input-group-btn">\n        <button type="button" class="btn btn-default dropdown-toggle">{{menuEntryTypes[newItem.type].name}} <span class="caret"></span></button>\n        <ul class="dropdown-menu">\n          <li ng-repeat="id in menuEntryTypes[state.editItem.type].childs track by $index"><a ng-click="newItem.type = id">{{menuEntryTypes[id].name}}</a></li>\n        </ul>\n      </div>\n      <input type="text" class="form-control" placeholder="New item name" ng-model="newItem.name" />\n      <div class="input-group-btn">\n        <button class="btn btn-success" ng-click="addItem(item, newItem)">Add item</button>\n      </div>\n    </div>\n  </fieldset>\n</div>')}]),angular.module("menueditor/entrytypes/li.tpl.html",[]).run(["$templateCache",function(a){a.put("menueditor/entrytypes/li.tpl.html",'<li>\n	<a class="{{(item.items.length > 0) ? \'dropdown-toggle\' : \'\'}}" ng-click="edit()">{{item.name}} <b ng-if="item.items.length > 0" class="caret"></b></a>\n	<div ng-repeat="inner in item.items" cn-menu-item cn-parent="item" cn-item="inner" cn-state="state" />\n</li>\n')}]),angular.module("menueditor/entrytypes/nav.tpl.html",[]).run(["$templateCache",function(a){a.put("menueditor/entrytypes/nav.tpl.html",'<div class="input-group" style="width: 100%">\n	<div class="navbar navbar-default yamm">\n		<div class="navbar-header">\n			<button type="button" data-toggle="collapse" data-target="#navbar-collapse-grid" class="navbar-toggle"><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button><a ng-click="edit()" class="navbar-brand">{{item.name}}</a>\n		</div>\n		<div class="navbar-collapse collapse">\n			<ul class="nav navbar-nav" ui-sortable ng-model="item.items">\n				<div ng-if="state.fresh" ng-repeat="inner in item.items" cn-menu-item cn-parent="item" cn-item="inner" cn-state="state"></div>\n			</ul>\n		</div>\n	</div>\n</div>\n\n\n')}]),angular.module("menueditor/entrytypes/navitem.tpl.html",[]).run(["$templateCache",function(a){a.put("menueditor/entrytypes/navitem.tpl.html",'<li class="dropdown yamm-fw">\n	<a class="{{(item.items.length > 0) ? \'dropdown-toggle\' : \'\'}}" ng-click="edit()">{{item.name}} <b ng-if="item.items.length > 0" class="caret"></b></a>\n	<ul ng-if="item.items.length > 0" class="dropdown-menu">\n		<li>\n			<div class="row yamm-content" ui-sortable ng-model="item.items">\n				<div ng-repeat="inner in item.items" cn-menu-item cn-parent="item" cn-item="inner" cn-state="state" />\n			</div>\n		</li>\n	</ul>\n</li>\n')}]),angular.module("menueditor/entrytypes/text.config.tpl.html",[]).run(["$templateCache",function(a){a.put("menueditor/entrytypes/text.config.tpl.html",'<div class="form-group row">\n  <label class="col-md-2 control-label" for="">Name</label>  \n  <div class="col-md-8">\n    <input ng-model="state.editItem.name" type="text" placeholder="Name" class="form-control input-md" />\n  </div>\n</div>\n<div class="form-group row">\n  <label class="col-md-2 control-label" for="">Content</label>  \n  <div class="col-md-8">\n    <input ng-model="state.editItem.content" type="text" placeholder="Classes" class="form-control input-md" />\n  </div>\n</div>\n<div class="form-group row">\n  <label class="col-md-2 control-label" for="">Classes</label>  \n  <div class="col-md-8">\n    <input ng-model="state.editItem.classes" type="text" placeholder="Name" class="form-control input-md" />\n  </div>\n</div>')}]),angular.module("menueditor/entrytypes/text.tpl.html",[]).run(["$templateCache",function(a){a.put("menueditor/entrytypes/text.tpl.html",'<div ng-class="item.classes">\n	<h5 ng-click="edit()">{{item.name}}</h5>\n	<p ng-click="edit()">{{item.content}}</p>\n</div>')}]),angular.module("menueditor/entrytypes/ul.config.tpl.html",[]).run(["$templateCache",function(a){a.put("menueditor/entrytypes/ul.config.tpl.html",'<div class="form-group row">\n  <label class="col-md-2 control-label" for="">Name</label>  \n  <div class="col-md-8">\n    <input ng-model="state.editItem.name" type="text" placeholder="Name" class="form-control input-md" />\n  </div>\n</div>\n<div class="form-group row">\n  <label class="col-md-2 control-label" for="">Classes</label>  \n  <div class="col-md-8">\n    <input ng-model="state.editItem.classes" type="text" placeholder="Classes" class="form-control input-md" />\n  </div>\n</div>\n<div class="row">\n  <fieldset class="col-md-12">\n    <legend>New item</legend>\n    <div class="input-group">\n      <div class="input-group-btn">\n        <button type="button" class="btn btn-default dropdown-toggle">{{menuEntryTypes[newItem.type].name}} <span class="caret"></span></button>\n        <ul class="dropdown-menu">\n          <li ng-repeat="id in menuEntryTypes[state.editItem.type].childs track by $index"><a ng-click="newItem.type = id">{{menuEntryTypes[id].name}}</a></li>\n        </ul>\n      </div>\n      <input type="text" class="form-control" placeholder="New item name" ng-model="newItem.name" />\n      <div class="input-group-btn">\n        <button class="btn btn-success" ng-click="addItem()">Add item</button>\n      </div>\n    </div>\n  </fieldset>\n</div>')}]),angular.module("menueditor/entrytypes/ul.tpl.html",[]).run(["$templateCache",function(a){a.put("menueditor/entrytypes/ul.tpl.html",'<ul ng-class="item.classes">\n	<h5 ng-click="edit()">{{item.name}}<h5>\n	<div ui-sortable ng-model="item.items">\n		<div ng-if="state.fresh" ng-repeat="inner in item.items" cn-menu-item cn-parent="item" cn-item="inner" cn-state="state"></div>\n	</div>\n</ul>')}]),angular.module("menueditor/menu.tpl.html",[]).run(["$templateCache",function(a){a.put("menueditor/menu.tpl.html",'<h1 class="page-header">\n  Menu {{menu.name}}<small><i class="icon-double-angle-right"></i> manage your menu</small>\n</h1>\n<blockquote>\nYou can edit your menu by click the item you wish to edit. Click the menu title to edit top level menu items. Click through your menu to edit those menu entries. You can also change the order of the menu by dragging and dropping the menu items to the place you want the item to be.\n</blockquote>\n<div>\n  <div ng-if="state.fresh" cn-menu-item cn-item="menu" cn-state="state"></div>\n  <div>\n    <div ng-if="state.showConfig">\n      <fieldset>\n        <legend>Edit menu item</legend>\n        <div cn-menu-item-config cn-menu="menu" cn-state="state" />\n      </fieldset>\n    </div>\n    <fieldset>\n      <legend>Menu actions</legend>\n      <button class="btn btn-success" ng-click="save()">Save</button>\n    </fieldset>\n  </div>\n</div>')}]),angular.module("menueditor/menulist.tpl.html",[]).run(["$templateCache",function(a){a.put("menueditor/menulist.tpl.html",'<h1 class="page-header">\n	Menu management\n	<small><i class="icon-double-angle-right"></i> edit your menus</small>\n</h1>\n<blockquote>You can edit or delete your menus, select a menu from the list below.</blockquote>\n<fieldset>\n	<legend>Menus</legend>\n	<table class="table table-striped">\n		<tr>\n			<th>Name</th>\n			<th>Actions</th>\n		</tr>\n		<tr ng-repeat="menu in menus">\n			<td>{{menu.name}}</td>\n			<td>\n				<button class="btn btn-success" ng-click="edit(menu)"><i class="fa fa-pencil"></i></button>\n				<button class="btn btn-danger" ng-click="remove(menu)"><i class="fa fa-trash-o"></i></button>\n			</td>\n		</tr>\n		<tr>\n			<td>\n				<div class="form-group">\n					<input ng-model="newName" type="text" placeholder="New menu name" class="form-control input-md" />\n				</div>\n			</td>\n			<td>\n				<button class="btn btn-success" ng-click="add(newName)">\n					<i class="fa fa-plus"></i> Add new menu\n				</button>\n			</td>\n		</tr>\n	</table>\n</fieldset>')}]);
+angular.module('core9Dashboard.account', [
+  'ui.router',
+  'core9Dashboard.menu'
+]).config([
+  '$stateProvider',
+  function ($stateProvider) {
+    $stateProvider.state('account', {
+      url: '/account',
+      views: {
+        'main': {
+          controller: 'AccountCtrl',
+          templateUrl: 'account/account.tpl.html'
+        }
+      },
+      data: {
+        pageTitle: 'Home',
+        sidebar: 'account'
+      }
+    });
+  }
+]).controller('AccountCtrl', [
+  '$scope',
+  function ($scope) {
+    $scope.$watch('name', function () {
+      if ($scope.name === 'alert') {
+        alert('Hoi');
+      }
+    });
+  }
+]).run([
+  'MenuService',
+  function (MenuService) {
+    MenuService.add('main', {
+      title: 'Account',
+      weight: '1000',
+      link: 'account'
+    });
+    MenuService.add('account', {
+      title: 'Delete',
+      weight: '1000',
+      link: 'account'
+    });
+    MenuService.add('account', {
+      title: 'Edit',
+      weight: '1200',
+      link: 'account'
+    });
+    MenuService.add('account', {
+      title: 'Back',
+      weight: '1300',
+      link: 'account'
+    });
+  }
+]);
+;
+;
+/**
+ * Each section of the site has its own module. It probably also has
+ * submodules, though this boilerplate is too simple to demonstrate it. Within
+ * `src/app/home`, however, could exist several additional folders representing
+ * additional modules that would then be listed as dependencies of this one.
+ * For example, a `note` section could have the submodules `note.create`,
+ * `note.delete`, `note.edit`, etc.
+ *
+ * Regardless, so long as dependencies are managed correctly, the build process
+ * will automatically take take of the rest.
+ *
+ * The dependencies block here is also where component dependencies should be
+ * specified, as shown below.
+ */
+angular.module('core9Dashboard.config', [
+  'ngResource',
+  'ui.router',
+  'core9Dashboard.menu'
+]).config([
+  '$stateProvider',
+  function ($stateProvider) {
+    $stateProvider.state('config', {
+      url: '/config',
+      views: {
+        'main': {
+          controller: 'ConfigCtrl',
+          templateUrl: 'config/config.tpl.html'
+        }
+      },
+      data: { pageTitle: 'Configuration' }
+    });
+  }
+]).controller('ConfigCtrl', [
+  '$scope',
+  'MenuService',
+  function ($scope, MenuService) {
+    $scope.title = 'Config';
+  }
+]).factory('ConfigFactory', [
+  '$resource',
+  function ($resource) {
+    return $resource('/admin/config/:configtype/:id', {
+      configtype: '@configtype',
+      id: '@_id'
+    }, { update: { method: 'PUT' } });
+  }
+]).run([
+  'MenuService',
+  function (MenuService) {
+    MenuService.add('main', {
+      title: 'Config',
+      link: 'config',
+      weight: 100
+    });
+  }
+]);
+;
+;
+angular.module('core9Dashboard.config.content', [
+  'ui.sortable',
+  'ui.router',
+  'core9Dashboard.config',
+  'core9Dashboard.menu',
+  'core9.formgenerator'
+]).config([
+  '$stateProvider',
+  function ($stateProvider) {
+    $stateProvider.state('configcontenttypelist', {
+      url: '/config/content',
+      views: {
+        'main': {
+          controller: 'ConfigContentCtrl',
+          templateUrl: 'config/content/content.tpl.html'
+        }
+      },
+      data: {
+        pageTitle: 'Configuration',
+        sidebar: 'config'
+      }
+    }).state('configcontenttype', {
+      url: '/config/contenttype/:id',
+      views: {
+        'main': {
+          controller: 'ConfigContentTypeCtrl',
+          templateUrl: 'config/content/type.tpl.html'
+        }
+      },
+      data: {
+        pageTitle: 'Configuration',
+        sidebar: 'config',
+        context: 'configcontenttype'
+      }
+    });
+  }
+]).controller('ConfigContentCtrl', [
+  '$scope',
+  'ConfigFactory',
+  '$state',
+  function ($scope, ConfigFactory, $state) {
+    $scope.contenttypes = ConfigFactory.query({ configtype: 'content' });
+    $scope.addType = function (name) {
+      var config = new ConfigFactory();
+      config.name = name;
+      config.$save({ configtype: 'content' }, function (data) {
+        $scope.contenttypes.push(data);
+      });
+    };
+    $scope.editType = function (type) {
+      $state.go('configcontenttype', { id: type._id });
+    };
+    $scope.removeType = function (type) {
+      type.$remove(function (data) {
+        $scope.contenttypes = ConfigFactory.query({ configtype: 'content' });
+      });
+    };
+  }
+]).controller('ConfigContentTypeCtrl', [
+  '$scope',
+  'ConfigFactory',
+  '$stateParams',
+  '$location',
+  '$state',
+  'MenuService',
+  function ($scope, ConfigFactory, $stateParams, $location, $state, MenuService) {
+    $scope.contenttype = ConfigFactory.get({
+      configtype: 'content',
+      id: $stateParams.id
+    });
+    $scope.state = {};
+    $scope.addField = function (newLabel, newName) {
+      if ($scope.contenttype.schema === undefined) {
+        $scope.contenttype.schema = {
+          title: $scope.contenttype.name,
+          type: 'object',
+          properties: {}
+        };
+      }
+      if ($scope.contenttype.schemaOptions === undefined) {
+        $scope.contenttype.schemaOptions = {};
+      }
+      $scope.contenttype.schema.properties[newName] = {};
+      $scope.contenttype.schemaOptions[newName] = { label: newLabel };
+      $scope.newLabel = $scope.newName = '';
+    };
+    $scope.removeField = function (fieldName) {
+      delete $scope.contenttype.schema.properties[fieldName];
+      delete $scope.contenttype.schemaOptions[fieldName];
+      $state.go('configcontenttype');
+    };
+    $scope.editField = function (fieldName) {
+      $scope.editfield = $scope.contenttype.schema.properties[fieldName];
+      $scope.editfieldOptions = $scope.contenttype.schemaOptions[fieldName];
+    };
+    $scope.close = function () {
+      delete $scope.editfield;
+      delete $scope.editfieldOptions;
+    };
+    $scope.save = function () {
+      $scope.contenttype.$update();
+      $state.go('configcontenttypelist');
+    };
+    $scope.remove = function () {
+      $scope.contenttype.$remove(function (data) {
+        $location.path('/config/content');
+      });
+    };
+  }
+]).run([
+  'MenuService',
+  'FieldConfig',
+  function (MenuService, FieldConfig) {
+    MenuService.add('config', {
+      title: 'Content',
+      link: 'configcontenttypelist',
+      weight: 100
+    });
+  }
+]);
+;
+;
+angular.module('core9Dashboard.config.contentref', [
+  'core9.formgenerator',
+  'core9Dashboard.config'
+]).controller('ContentRefConfigController', [
+  '$scope',
+  'ConfigFactory',
+  function ($scope, ConfigFactory) {
+    $scope.contenttypes = ConfigFactory.query({ configtype: 'content' }, function () {
+      assignContentType();
+    });
+    $scope.$watch('data.contenttype', function () {
+      assignContentType();
+    });
+    function assignContentType() {
+      if ($scope.data.contenttype !== undefined) {
+        for (var i = 0; i < $scope.contenttypes.length; i++) {
+          if ($scope.contenttypes[i].name === $scope.data.contenttype) {
+            $scope.contenttype = $scope.contenttypes[i];
+            $scope.field['properties'] = {
+              key: { type: 'string' },
+              value: { type: 'string' }
+            };
+          }
+        }
+      }
+    }
+  }
+]).controller('ContentRefController', [
+  '$scope',
+  'ContentFactory',
+  function ($scope, ContentFactory) {
+    $scope.contentList = {};
+    ContentFactory.query({ contenttype: $scope.options.contenttype }, function (data) {
+      for (var i = 0; i < data.length; i++) {
+        $scope.contentList[data[i]._id] = data[i][$scope.options.contentfield];
+      }
+    });
+    $scope.$watch('data', function () {
+      if ($scope.data !== undefined) {
+        $scope.selected = $scope.data.value;
+      }
+    });
+    $scope.$watch('selected', function (newVal, oldVal) {
+      if (newVal !== undefined && newVal !== oldVal) {
+        $scope.data['key'] = $scope.contentList[$scope.selected];
+        $scope.data['value'] = $scope.selected;
+      }
+    });
+  }
+]).run([
+  'FieldConfig',
+  function (FieldConfig) {
+    FieldConfig.get('object').addWidget('contentref', {
+      template: 'config/contentref/contentref.tpl.html',
+      config: 'config/contentref/contentref.config.tpl.html'
+    }).save();
+  }
+]);
+;
+;
+angular.module('core9Dashboard.content', [
+  'ui.router',
+  'ngResource',
+  'core9Dashboard.config.content',
+  'core9Dashboard.config.contentref',
+  'core9Dashboard.content.references',
+  'core9.formgenerator'
+]).factory('ContentFactory', [
+  '$resource',
+  function ($resource) {
+    return $resource('/admin/content/:contenttype/:id', {
+      contenttype: '@contenttype',
+      id: '@_id'
+    }, { update: { method: 'PUT' } });
+  }
+]).config([
+  '$stateProvider',
+  function ($stateProvider) {
+    $stateProvider.state('content', {
+      abstract: true,
+      views: {
+        'main': {
+          controller: 'ContentCtrl',
+          template: '<div ui-view></div>'
+        }
+      },
+      data: {
+        pageTitle: 'Content',
+        sidebar: 'content',
+        context: 'contentcontext'
+      }
+    }).state('content.default', {
+      url: '/content',
+      controller: 'ContentListCtrl',
+      templateUrl: 'content/contentlist.tpl.html'
+    }).state('content.type', {
+      url: '/content/:type',
+      controller: 'ContentListCtrl',
+      templateUrl: 'content/contentlist.tpl.html'
+    }).state('content.item', {
+      url: '/content/:type/:id',
+      controller: 'ContentItemCtrl',
+      templateUrl: 'content/content.item.tpl.html'
+    });
+  }
+]).controller('ContentCtrl', function () {
+}).controller('ContentListCtrl', [
+  '$scope',
+  'ConfigFactory',
+  'ContentFactory',
+  '$state',
+  '$stateParams',
+  function ($scope, ConfigFactory, ContentFactory, $state, $stateParams) {
+    $scope.contenttypes = ConfigFactory.query({ configtype: 'content' }, function (data) {
+      if ($stateParams.type !== undefined) {
+        for (var i = 0; i < data.length; i++) {
+          if (data[i]._id === $stateParams.type) {
+            $scope.contenttype = data[i];
+          }
+        }
+      }
+    });
+    $scope.$watch('contenttype', function () {
+      if ($scope.contenttype !== undefined && $scope.contenttype.name !== undefined) {
+        $scope.contentlist = ContentFactory.query({ contenttype: $scope.contenttype.name });
+      }
+    });
+    $scope.add = function () {
+      var content = new ContentFactory();
+      content.$save({ contenttype: $scope.contenttype.name }, function (data) {
+        $scope.contentlist.push(data);
+        $state.go('content.item', {
+          type: $scope.contenttype._id,
+          id: data._id
+        });
+      });
+    };
+    $scope.edit = function (data) {
+      $state.go('content.item', {
+        type: $scope.contenttype._id,
+        id: data._id
+      });
+    };
+    $scope.remove = function (data) {
+      var item = new ContentFactory(data);
+      item.$remove(function () {
+        $scope.contentlist = ContentFactory.query({ contenttype: $scope.contenttype.name });
+      });
+    };
+  }
+]).controller('ContentItemCtrl', [
+  '$scope',
+  '$stateParams',
+  '$state',
+  'ContentFactory',
+  'ConfigFactory',
+  function ($scope, $stateParams, $state, ContentFactory, ConfigFactory) {
+    $scope.contenttype = ConfigFactory.get({
+      configtype: 'content',
+      id: $stateParams.type
+    }, function () {
+      var item = ContentFactory.get({
+          contenttype: $scope.contenttype.name,
+          id: $stateParams.id
+        }, function () {
+          $scope.item = item;
+        });
+    });
+    $scope.save = function () {
+      $scope.item.$update();
+      $state.go('content.type', { type: $stateParams.type });
+    };
+  }
+]).run([
+  'MenuService',
+  'ConfigFactory',
+  function (MenuService, ConfigFactory) {
+    MenuService.add('main', {
+      title: 'Content',
+      weight: 50,
+      link: 'content.default'
+    });
+    MenuService.add('content', {
+      title: 'Content',
+      weight: 0,
+      link: 'content.default'
+    });
+    ConfigFactory.query({ configtype: 'content' }, function (data) {
+      for (var i = 0; i < data.length; i++) {
+        MenuService.add('contentcontext', {
+          title: data[i].label,
+          weight: '50',
+          link: 'content.type({type: "' + data[i]._id + '"})'
+        });
+      }
+    });
+  }
+]);
+;
+;
+angular.module('core9Dashboard.content.references', [
+  'ui.router',
+  'core9Dashboard.menu',
+  'core9Dashboard.config',
+  'core9Dashboard.content'
+]).config([
+  '$stateProvider',
+  function ($stateProvider) {
+    $stateProvider.state('contentreferences', {
+      url: '/content/references',
+      views: {
+        'main': {
+          controller: 'ContentReferencesCtrl',
+          templateUrl: 'content/references.tpl.html'
+        }
+      },
+      data: {
+        pageTitle: 'Content references',
+        sidebar: 'content'
+      }
+    });
+  }
+]).controller('ContentReferencesCtrl', [
+  '$scope',
+  'ConfigFactory',
+  'ContentFactory',
+  function ($scope, ConfigFactory, ContentFactory) {
+    $scope.contenttypes = ConfigFactory.query({ configtype: 'content' });
+    $scope.srcSearch = {};
+    $scope.dstSearch = {};
+    $scope.unreferenced = false;
+    $scope.$watch('unreferenced', function () {
+      if ($scope.sourceField !== undefined) {
+        if ($scope.unreferenced) {
+          $scope.srcSearch[$scope.sourceField.name] = '!';
+        } else {
+          delete $scope.srcSearch[$scope.sourceField.name];
+        }
+      }
+    });
+    $scope.getContentRefFields = function (schemaOptions) {
+      if (schemaOptions !== undefined) {
+        var result = [];
+        var items, i;
+        for (var field in schemaOptions) {
+          if (field === 'widget' && schemaOptions[field] === 'contentref') {
+            result.push({
+              name: 'this',
+              field: schemaOptions
+            });
+          } else if (typeof schemaOptions[field] === 'object') {
+            items = $scope.getContentRefFields(schemaOptions[field]);
+            for (i = 0; i < items.length; i++) {
+              if (items[i].name === 'this') {
+                if (field === 'items') {
+                  items[i].field['qty'] = 'multiple';
+                } else {
+                  items[i].name = field;
+                }
+              } else {
+                items[i].name = field + '.' + items[i].name;
+              }
+              result.push(items[i]);
+            }
+          }
+        }
+        return result;
+      }
+    };
+    $scope.reset = function (current, other, index) {
+      $scope[other] = {};
+      var isActive = $scope[current][index._id];
+      $scope[current] = {};
+      if (isActive) {
+        delete $scope.pivotType;
+        delete $scope.pivot;
+      } else {
+        $scope[current][index._id] = true;
+        $scope.pivot = index;
+      }
+    };
+    /* TODO: Only supports multiple items */
+    $scope.setSelectedDestItems = function () {
+      if ($scope.pivot !== undefined) {
+        if ($scope.pivot[$scope.sourceField.name] === undefined) {
+          $scope.pivot[$scope.sourceField.name] = [];
+        }
+        var field = $scope.pivot[$scope.sourceField.name];
+        for (var i = 0; i < field.length; i++) {
+          $scope.destIndex[field[i].value] = true;
+        }
+      }
+    };
+    $scope.srcIndex = {};
+    $scope.selectSource = function (index) {
+      if ($scope.pivotType === undefined) {
+        $scope.pivotType = 'source';
+      }
+      if ($scope.pivotType === 'source') {
+        $scope.reset('srcIndex', 'destIndex', index);
+        $scope.setSelectedDestItems();
+      } else {
+        var isActive = $scope.srcIndex[index._id];
+        if (isActive) {
+          var field = index[$scope.sourceField.name];
+          for (var i = 0; i < field.length; i++) {
+            if (field[i].value === $scope.pivot._id) {
+              index[$scope.sourceField.name].splice(i, 1);
+            }
+          }
+          $scope.srcIndex[index._id] = false;
+        } else {
+          var key = $scope.pivot[$scope.sourceField.field.contentfield];
+          var value = $scope.pivot._id;
+          index[$scope.sourceField.name].push({
+            key: key,
+            value: value
+          });
+          $scope.srcIndex[index._id] = true;
+        }
+        index.$update();
+      }
+    };
+    $scope.setSelectedSrcItems = function () {
+      for (var i = 0; i < $scope.contentList.length; i++) {
+        if ($scope.contentList[i][$scope.sourceField.name] === undefined) {
+          $scope.contentList[i][$scope.sourceField.name] = [];
+        }
+        var field = $scope.contentList[i][$scope.sourceField.name];
+        for (var n = 0; n < field.length; n++) {
+          if (field[n].value === $scope.pivot._id) {
+            $scope.srcIndex[$scope.contentList[i]._id] = true;
+          }
+        }
+      }
+    };
+    $scope.destIndex = {};
+    $scope.selectDestination = function (index) {
+      if ($scope.pivotType === undefined) {
+        $scope.pivotType = 'destination';
+      }
+      if ($scope.pivotType === 'destination') {
+        $scope.reset('destIndex', 'srcIndex', index);
+        $scope.setSelectedSrcItems();
+      } else {
+        var isActive = $scope.destIndex[index._id];
+        if (isActive) {
+          var field = $scope.pivot[$scope.sourceField.name];
+          for (var i = 0; i < field.length; i++) {
+            if (field[i].value === index._id) {
+              $scope.pivot[$scope.sourceField.name].splice(i, 1);
+            }
+          }
+          $scope.destIndex[index._id] = false;
+        } else {
+          var key = index[$scope.sourceField.field.contentfield];
+          var value = index._id;
+          $scope.pivot[$scope.sourceField.name].push({
+            value: value,
+            key: key
+          });
+          $scope.destIndex[index._id] = true;
+        }
+        $scope.pivot.$update();
+      }
+    };
+    $scope.$watch('source', function () {
+      delete $scope.sourceField;
+      if ($scope.source !== undefined) {
+        $scope.contentList = ContentFactory.query({ contenttype: $scope.source.name });
+        $scope.contentRefFields = $scope.getContentRefFields($scope.source.schemaOptions);
+      }
+    });
+    $scope.$watch('sourceField', function () {
+      if ($scope.sourceField !== undefined) {
+        $scope.referencedList = ContentFactory.query({ contenttype: $scope.sourceField.field.contenttype });
+      }
+    });
+  }
+]).run([
+  'MenuService',
+  function (MenuService) {
+    MenuService.add('content', {
+      title: 'References',
+      weight: 50,
+      link: 'contentreferences'
+    });
+  }
+]);
+;
+;
+angular.module('core9Dashboard.adminplugin.feature', ['ui.bootstrap']).controller('FeatureProcessorAdminPluginCtrl', [
+  '$scope',
+  function ($scope) {
+    $scope.add = function (module, file) {
+      $scope.$parent.selected.push({
+        module: module,
+        file: file
+      });
+      $scope.showForm = false;
+    };
+    $scope.remove = function (index) {
+      $scope.$parent.selected.splice(index, 1);
+    };
+  }
+]);
+;
+;
+
+;
+angular.module('core9.formgenerator', []).factory('FieldConfig', [
+  '$templateCache',
+  function ($templateCache) {
+    var fieldsRegistry = {};
+    function FieldConfig(config) {
+      angular.copy(config, this);
+    }
+    FieldConfig.get = function (name) {
+      return new FieldConfig(fieldsRegistry[name]);
+    };
+    FieldConfig.getAll = function () {
+      var keys = [];
+      for (var key in fieldsRegistry) {
+        keys.push(key);
+      }
+      return keys;
+    };
+    FieldConfig.prototype['save'] = function () {
+      fieldsRegistry[this.type] = this;
+      return fieldsRegistry[this.type];
+    };
+    FieldConfig.prototype['render'] = function () {
+      return $templateCache.get(this.template);
+    };
+    FieldConfig.prototype['addWidget'] = function (name, widget) {
+      if (this.widgets === undefined) {
+        this.widgets = {};
+      }
+      this.widgets[name] = widget;
+      return this;
+    };
+    FieldConfig.prototype['renderconfig'] = function (widget) {
+      return $templateCache.get(this.widgets[widget].config);
+    };
+    return FieldConfig;
+  }
+]).directive('cnSchemaGenerator', [
+  '$compile',
+  '$templateCache',
+  'FieldConfig',
+  function ($compile, $templateCache, FieldConfig) {
+    return {
+      replace: true,
+      scope: {
+        name: '=cnName',
+        schema: '=cnSchema',
+        data: '=cnData',
+        options: '=cnOptions'
+      },
+      link: function (scope, element, attrs) {
+        if (scope.name !== undefined) {
+          if (scope.options[scope.name] === undefined) {
+            scope.options[scope.name] = {};
+          }
+          scope.options = scope.options[scope.name];
+        }
+        scope.$watch('options', function () {
+          if (scope.options === undefined) {
+            scope.options = {
+              widget: 'standard',
+              label: scope.name
+            };
+          }
+          if (scope.options.widget === undefined) {
+            scope.options.widget = 'standard';
+          }
+          if (scope.options.label === undefined && scope.name !== undefined) {
+            scope.options.label = scope.name;
+          }
+          scope.render();
+        });
+        scope.$watch('schema', function () {
+          scope.render();
+        });
+        scope.render = function () {
+          if (scope.schema !== undefined && scope.schema.type !== undefined && scope.options !== undefined && scope.options.widget !== undefined) {
+            element.html($templateCache.get(FieldConfig.get(scope.schema.type).widgets[scope.options.widget].template));
+            $compile(element.contents())(scope);
+          }
+        };
+      }
+    };
+  }
+]).directive('cnFieldConfig', [
+  'FieldConfig',
+  '$compile',
+  function (FieldConfig, $compile) {
+    return {
+      replace: true,
+      scope: {
+        field: '=',
+        data: '='
+      },
+      link: function (scope, element, attrs) {
+        scope.$watch('field', function (newValue, oldValue) {
+          element.html('');
+          $compile(element.contents())(scope);
+          if (newValue !== undefined) {
+            element.html(FieldConfig.get(scope.field.type).renderconfig(scope.data.widget));
+            $compile(element.contents())(scope);
+          }
+        });
+        scope.$watch('data.widget', function (newValue, oldValue) {
+          element.html('');
+          $compile(element.contents())(scope);
+          if (newValue !== undefined) {
+            element.html(FieldConfig.get(scope.field.type).renderconfig(scope.data.widget));
+            $compile(element.contents())(scope);
+          }
+        });
+      }
+    };
+  }
+]).directive('cnFieldOptions', [
+  '$templateCache',
+  '$compile',
+  'FieldConfig',
+  function ($templateCache, $compile, FieldConfig) {
+    return {
+      replace: true,
+      scope: {
+        field: '=cnField',
+        data: '=cnData'
+      },
+      link: function (scope, element, attrs) {
+        scope.fieldtypes = FieldConfig.getAll();
+        scope.$watch('field.type', function () {
+          if (scope.field !== undefined && scope.field.type !== undefined) {
+            scope.fieldType = FieldConfig.get(scope.field.type);
+          }
+        });
+        element.html($templateCache.get('forms/field.tpl.html'));
+        $compile(element.contents())(scope);
+      }
+    };
+  }
+]).controller('coreArrayController', [
+  '$scope',
+  'FieldConfig',
+  function ($scope, FieldConfig) {
+    $scope.name = 'items';
+    $scope.addItem = function () {
+      if ($scope.schema.items.type === 'object') {
+        $scope.data.push({});
+      } else if ($scope.schema.items.type === 'array') {
+        $scope.data.push([]);
+      } else {
+        $scope.data.push('');
+      }
+    };
+  }
+]).controller('coreArrayConfigController', [
+  '$scope',
+  'FieldConfig',
+  function ($scope, FieldConfig) {
+    $scope.fieldtypes = FieldConfig.getAll();
+    if ($scope.field.items === undefined) {
+      $scope.field.items = {};
+    }
+    if ($scope.data.items === undefined) {
+      $scope.data.items = {};
+    }
+    $scope.$watch('field.items.type', function () {
+      if ($scope.field !== undefined && $scope.field.items !== undefined && $scope.field.items.type !== undefined) {
+        $scope.itemsfield = FieldConfig.get($scope.field.items.type);
+      }
+    });
+  }
+]).controller('coreObjectConfigController', [
+  '$scope',
+  'FieldConfig',
+  function ($scope, FieldConfig) {
+    if ($scope.field.properties === undefined) {
+      $scope.field.properties = {};
+    }
+    $scope.addField = function (newLabel, newName) {
+      $scope.field.properties[newName] = {};
+      $scope.data[newName] = { label: newLabel };
+      $scope.newLabel = $scope.newName = '';
+    };
+    $scope.removeField = function (fieldName) {
+      delete $scope.field.properties[fieldName];
+      delete $scope.data[fieldName];
+    };
+    $scope.editField = function (fieldName) {
+      $scope.editfield = $scope.field.properties[fieldName];
+      $scope.editfieldOptions = $scope.data[fieldName];
+    };
+  }
+]).controller('coreObjectController', [
+  '$scope',
+  function ($scope) {
+    $scope.addField = function () {
+      console.log($scope.data[$scope.name]);
+      if ($scope.data[$scope.name] === undefined) {
+        $scope.data[$scope.name] = {};
+      }
+      $scope.data[$scope.name][$scope.newField] = $scope.newValue;
+      $scope.newField = $scope.newValue = '';
+    };
+    $scope.removeField = function (name, key) {
+      delete $scope.data[name][key];
+    };
+    $scope.$watch('data', function () {
+      if ($scope.data !== undefined && $scope.schema !== undefined) {
+        if ($scope.schema.type === 'object') {
+          for (var property in $scope.schema.properties) {
+            if ($scope.data[property] === undefined) {
+              if ($scope.schema.properties[property].type === 'object') {
+                $scope.data[property] = {};
+              }
+              if ($scope.schema.properties[property].type === 'array') {
+                $scope.data[property] = [];
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+]).controller('coreSelectController', [
+  '$scope',
+  function ($scope) {
+    $scope.switch = function (data) {
+      $scope.$parent.data = data;
+    };
+  }
+]).controller('coreGlobalSelectController', [
+  '$scope',
+  function ($scope) {
+    $scope.switch = function (data) {
+      $scope.$parent.data.value = data;
+    };
+  }
+]).run([
+  'FieldConfig',
+  function (FieldConfig) {
+    new FieldConfig({ type: 'string' }).addWidget('standard', {
+      template: 'forms/fields/textfield.tpl.html',
+      config: 'forms/fields/textfield.config.tpl.html'
+    }).addWidget('select', {
+      template: 'forms/fields/select.tpl.html',
+      config: 'forms/fields/textfield.config.tpl.html'
+    }).addWidget('textarea', {
+      template: 'forms/fields/textarea.tpl.html',
+      config: 'forms/fields/textarea.config.tpl.html'
+    }).save();
+    new FieldConfig({ type: 'integer' }).addWidget('standard', {
+      template: 'forms/fields/integer.tpl.html',
+      config: 'forms/fields/integer.config.tpl.html'
+    }).save();
+    new FieldConfig({ type: 'boolean' }).addWidget('standard', {
+      template: 'forms/fields/boolean.tpl.html',
+      config: 'forms/fields/boolean.config.tpl.html'
+    }).save();
+    new FieldConfig({ type: 'object' }).addWidget('standard', {
+      template: 'forms/fields/object.tpl.html',
+      config: 'forms/fields/object.config.tpl.html'
+    }).addWidget('select_with_global', {
+      template: 'forms/fields/select_with_global.tpl.html',
+      config: 'forms/fields/textfield.config.tpl.html'
+    }).addWidget('textfield_with_global', {
+      template: 'forms/fields/textfield_with_global.tpl.html',
+      config: 'forms/fields/textfield.config.tpl.html'
+    }).save();
+    new FieldConfig({ type: 'array' }).addWidget('standard', {
+      template: 'forms/fields/array.tpl.html',
+      config: 'forms/fields/array.config.tpl.html'
+    }).save();
+    new FieldConfig({ type: 'null' }).addWidget('standard', {
+      template: 'forms/fields/null.tpl.html',
+      config: 'forms/fields/null.config.tpl.html'
+    }).save();
+  }
+]);
+;
+;
+angular.module('core9Dashboard.home', ['ui.router']).config([
+  '$stateProvider',
+  function ($stateProvider) {
+    $stateProvider.state('home', {
+      url: '/home',
+      views: {
+        'main': {
+          controller: 'HomeCtrl',
+          templateUrl: 'home/home.tpl.html'
+        }
+      },
+      data: {
+        pageTitle: 'Home',
+        sidebar: 'main'
+      }
+    });
+  }
+]).controller('HomeCtrl', [
+  '$scope',
+  '$http',
+  function ($scope, $http) {
+    $scope.login = function () {
+      $http.post('/system/login', {
+        username: $scope.username,
+        password: $scope.password
+      }).success(function (data) {
+        console.log('Logged in');
+      }).error(function (error) {
+        $scope.$emit('$error', error.content);
+      });
+    };
+  }
+]);
+;
+;
+angular.module('core9Dashboard.menu', []).service('MenuService', [
+  '$rootScope',
+  function ($rootScope) {
+    return {
+      menu: [],
+      add: function (menuName, item) {
+        if (this.menu[menuName] === undefined) {
+          this.menu[menuName] = [];
+        }
+        this.menu[menuName].push(item);
+        $rootScope.$broadcast('MenuService.update', this.menu);
+      }
+    };
+  }
+]).directive('coreMenu', [
+  'MenuService',
+  function (MenuService) {
+    return {
+      replace: true,
+      restrict: 'A',
+      templateUrl: 'menu/menu.tpl.html',
+      scope: { menu: '=coreMenu' },
+      link: function (scope, elem, attrs) {
+        scope.$watch('menu', function () {
+          scope.thismenu = MenuService.menu[scope.menu];
+        });
+      }
+    };
+  }
+]).directive('coreMenuItem', [
+  '$compile',
+  function ($compile) {
+    return {
+      restrict: 'A',
+      scope: { item: '=coreMenuItem' },
+      link: function (scope, element, attrs) {
+        var template = scope.item.template;
+        if (template !== undefined) {
+          var newElement = angular.element(template);
+          $compile(newElement)(scope);
+          element.replaceWith(newElement);
+        }
+      }
+    };
+  }
+]);
+;
+;
+angular.module('core9Dashboard.menuEditor', [
+  'ui.router',
+  'ui.bootstrap',
+  'ui.sortable',
+  'core9Dashboard.config',
+  'core9Dashboard.menu'
+]).config([
+  '$stateProvider',
+  function ($stateProvider) {
+    $stateProvider.state('menueditor', {
+      url: '/config/menueditor',
+      views: {
+        'main': {
+          controller: 'MenuEditorCtrl',
+          templateUrl: 'menueditor/menulist.tpl.html'
+        }
+      },
+      data: {
+        pageTitle: 'Menu',
+        sidebar: 'config'
+      }
+    }).state('menueditormenu', {
+      url: '/config/menueditor/:id',
+      views: {
+        'main': {
+          controller: 'MenuEditorMenuCtrl',
+          templateUrl: 'menueditor/menu.tpl.html'
+        }
+      },
+      data: {
+        pageTitle: 'Menu',
+        sidebar: 'config'
+      }
+    });
+  }
+]).factory('MenuEntryTypes', function () {
+  var menuEntryTypes = {};
+  this.getMenuEntryTypes = function () {
+    return menuEntryTypes;
+  };
+  this.getMenuEntryTypeTemplate = function (id) {
+    return menuEntryTypes[id].templateUrl;
+  };
+  this.getMenuEntryConfigTemplate = function (id) {
+    return menuEntryTypes[id].configUrl;
+  };
+  this.registerMenuEntryType = function (type) {
+    menuEntryTypes[type.id] = type;
+    return this;
+  };
+  return this;
+}).directive('cnMenuItem', [
+  '$compile',
+  '$templateCache',
+  'MenuEntryTypes',
+  function ($compile, $templateCache, MenuEntryTypes) {
+    return {
+      replace: true,
+      scope: {
+        item: '=cnItem',
+        parent: '=cnParent',
+        state: '=cnState',
+        clazz: '@cnClass'
+      },
+      link: function (scope, element, attrs) {
+        scope.$watch('item.type', function () {
+          if (scope.item.type !== undefined) {
+            var e = $compile($templateCache.get(MenuEntryTypes.getMenuEntryTypeTemplate(scope.item.type)))(scope);
+            element.replaceWith(e);
+          }
+        });
+        scope.edit = function () {
+          scope.state.parent = scope.parent;
+          scope.state.showConfig = false;
+          scope.state.showConfig = true;
+          scope.state.editItem = scope.item;
+        };
+        scope.sortableOptions = { connectWith: 'ul' };
+      }
+    };
+  }
+]).directive('cnMenuItemConfig', [
+  '$compile',
+  '$templateCache',
+  'MenuEntryTypes',
+  function ($compile, $templateCache, MenuEntryTypes) {
+    return {
+      replace: false,
+      scope: {
+        menu: '=cnMenu',
+        state: '=cnState'
+      },
+      link: function (scope, element, attrs) {
+        scope.menuEntryTypes = MenuEntryTypes.getMenuEntryTypes();
+        scope.$watch('state.editItem.type', function () {
+          if (scope.state.editItem.type !== undefined) {
+            scope.newItem = { type: MenuEntryTypes.getMenuEntryTypes()[scope.state.editItem.type].childs[0] };
+            var itemConfig = $templateCache.get(MenuEntryTypes.getMenuEntryConfigTemplate(scope.state.editItem.type));
+            var actions = $templateCache.get('menueditor/entryactions.tpl.html');
+            var e = $compile(itemConfig + actions)(scope);
+            element.html(e);
+          }
+        });
+        scope.addItem = function () {
+          if (scope.state.editItem.items === undefined) {
+            scope.state.editItem.items = [];
+          }
+          scope.state.editItem.items.push(scope.newItem);
+          scope.newItem = { type: scope.newItem.type };
+          scope.refreshMenu();
+        };
+        scope.remove = function () {
+          var index = scope.state.parent.items.indexOf(scope.state.editItem);
+          scope.state.parent.items.splice(index, 1);
+          console.log(scope.state.parent.items);
+          scope.state.parent = null;
+          scope.state.editItem = null;
+          scope.state.showConfig = false;
+          scope.refreshMenu();
+        };
+        scope.refreshMenu = function () {
+          scope.state.fresh = false;
+          scope.state.fresh = true;
+        };
+      }
+    };
+  }
+]).controller('MenuEditorCtrl', [
+  '$scope',
+  '$state',
+  'ConfigFactory',
+  function ($scope, $state, ConfigFactory) {
+    $scope.menus = ConfigFactory.query({ configtype: 'menu' });
+    $scope.add = function (newName) {
+      var menu = new ConfigFactory({ configtype: 'menu' });
+      menu.name = newName;
+      menu.type = 'nav';
+      menu.$save(function (data) {
+        $scope.menus.push(data);
+        $state.go('menueditormenu', { id: data._id });
+      });
+    };
+    $scope.edit = function (menu) {
+      $state.go('menueditormenu', { id: menu._id });
+    };
+    $scope.remove = function (menu) {
+      menu.$remove(function (data) {
+        $scope.menus = ConfigFactory.query({ configtype: 'menu' });
+      });
+    };
+  }
+]).controller('MenuEditorMenuCtrl', [
+  '$scope',
+  '$stateParams',
+  'ConfigFactory',
+  'MenuEntryTypes',
+  function ($scope, $stateParams, ConfigFactory, MenuEntryTypes) {
+    $scope.state = { fresh: true };
+    $scope.menu = ConfigFactory.get({
+      configtype: 'menu',
+      id: $stateParams.id
+    });
+    $scope.save = function () {
+      $scope.menu.$update();
+    };
+    $scope.remove = function () {
+      var index = $scope.state.parent.items.indexOf($scope.state.editItem);
+      console.log(index);
+      if (index > -1) {
+        $scope.state.parent.items.splice(index, 1);
+      }
+    };
+  }
+]).run([
+  'MenuService',
+  'MenuEntryTypes',
+  function (MenuService, MenuEntryTypes) {
+    MenuEntryTypes.registerMenuEntryType({
+      id: 'nav',
+      name: 'Menu',
+      templateUrl: 'menueditor/entrytypes/nav.tpl.html',
+      configUrl: 'menueditor/entrytypes/ul.config.tpl.html',
+      childs: [
+        'navitem',
+        'li'
+      ]
+    }).registerMenuEntryType({
+      id: 'navitem',
+      name: 'Top level entry',
+      templateUrl: 'menueditor/entrytypes/navitem.tpl.html',
+      configUrl: 'menueditor/entrytypes/li.config.tpl.html',
+      childs: [
+        'ul',
+        'text'
+      ]
+    }).registerMenuEntryType({
+      id: 'li',
+      name: 'List Item',
+      templateUrl: 'menueditor/entrytypes/li.tpl.html',
+      configUrl: 'menueditor/entrytypes/li.config.tpl.html',
+      childs: [
+        'ul',
+        'text'
+      ]
+    }).registerMenuEntryType({
+      id: 'ul',
+      name: 'List',
+      templateUrl: 'menueditor/entrytypes/ul.tpl.html',
+      configUrl: 'menueditor/entrytypes/ul.config.tpl.html',
+      childs: ['li']
+    }).registerMenuEntryType({
+      id: 'text',
+      name: 'Text',
+      templateUrl: 'menueditor/entrytypes/text.tpl.html',
+      configUrl: 'menueditor/entrytypes/text.config.tpl.html',
+      childs: []
+    });
+    MenuService.add('config', {
+      title: 'Menu',
+      weight: 150,
+      link: 'menueditor'
+    });
+  }
+]);
+;
+;
+angular.module('core9Dashboard', [
+  'ui.router',
+  'core9Dashboard.extensions',
+  'core9Dashboard.adminplugin.feature'
+]).config([
+  '$urlRouterProvider',
+  function ($urlRouterProvider) {
+    $urlRouterProvider.otherwise('/home');
+  }
+]).controller('AppCtrl', [
+  '$state',
+  '$scope',
+  function ($state, $scope) {
+    $scope.$on('$stateChangeSuccess', function (event, toState, toParams, fromState, fromParams) {
+      if (angular.isDefined(toState.data.pageTitle)) {
+        $scope.pageTitle = toState.data.pageTitle + ' | Core9 Admin Dashboard';
+      }
+      if ($state.current.data.context !== undefined) {
+        $scope.context = $state.current.data.context;
+      } else {
+        $scope.context = '';
+      }
+      if ($state.current.data.sidebar !== undefined) {
+        $scope.sidebar = $state.current.data.sidebar;
+      } else {
+        $scope.sidebar = $state.current.name;
+      }
+    });
+    $scope.$on('$error', function (event, message) {
+      $scope.error = message;
+    });
+    $scope.close = function () {
+      $scope.error = '';
+    };
+    $scope.collapseMenu = true;
+    $scope.menu = 'main';
+    $scope.sidebar = 'main';
+  }
+]).filter('getByProperty', function () {
+  return function (propertyName, propertyValue, collection) {
+    var i = 0, len = collection.length;
+    for (; i < len; i++) {
+      if (collection[i][propertyName] === propertyValue) {
+        return collection[i];
+      }
+    }
+    return null;
+  };
+});
+;
+angular.module('core9Dashboard.admin.dashboard', [
+  'ui.router',
+  'core9Dashboard.home',
+  'core9Dashboard.config',
+  'core9Dashboard.content',
+  'core9Dashboard.menu',
+  'core9Dashboard.menuEditor',
+  'core9Dashboard.account',
+  'core9.formgenerator',
+  'templates-module-cms'
+]).run([
+  'MenuService',
+  function (MenuService) {
+    MenuService.add('main', {
+      title: 'Dashboard',
+      link: 'home',
+      weight: 0
+    });
+    MenuService.add('back', {
+      title: 'Back',
+      template: '<a href="javascript:window.history.back()">Back</a>',
+      weight: 0
+    });
+  }
+]);
+;
+;
+angular.module('templates-module-cms', [
+  'account/account.tpl.html',
+  'config/config.tpl.html',
+  'config/content/content.tpl.html',
+  'config/content/type.tpl.html',
+  'config/contentref/contentref.config.tpl.html',
+  'config/contentref/contentref.tpl.html',
+  'content/content.item.tpl.html',
+  'content/contentlist.tpl.html',
+  'content/references.tpl.html',
+  'featureprocessor/adminplugin.tpl.html',
+  'forms/field.tpl.html',
+  'forms/fields/array.config.tpl.html',
+  'forms/fields/array.tpl.html',
+  'forms/fields/boolean.config.tpl.html',
+  'forms/fields/boolean.tpl.html',
+  'forms/fields/integer.config.tpl.html',
+  'forms/fields/integer.tpl.html',
+  'forms/fields/object.config.tpl.html',
+  'forms/fields/object.tpl.html',
+  'forms/fields/select.tpl.html',
+  'forms/fields/select_with_global.tpl.html',
+  'forms/fields/textarea.config.tpl.html',
+  'forms/fields/textarea.tpl.html',
+  'forms/fields/textfield.config.tpl.html',
+  'forms/fields/textfield.tpl.html',
+  'forms/fields/textfield_with_global.tpl.html',
+  'home/home.tpl.html',
+  'menu/menu.tpl.html',
+  'menueditor/entryactions.tpl.html',
+  'menueditor/entrytypes/li.config.tpl.html',
+  'menueditor/entrytypes/li.tpl.html',
+  'menueditor/entrytypes/nav.tpl.html',
+  'menueditor/entrytypes/navitem.tpl.html',
+  'menueditor/entrytypes/text.config.tpl.html',
+  'menueditor/entrytypes/text.tpl.html',
+  'menueditor/entrytypes/ul.config.tpl.html',
+  'menueditor/entrytypes/ul.tpl.html',
+  'menueditor/menu.tpl.html',
+  'menueditor/menulist.tpl.html'
+]);
+angular.module('account/account.tpl.html', []).run([
+  '$templateCache',
+  function ($templateCache) {
+    $templateCache.put('account/account.tpl.html', '<h1 class="page-header">Account information</h1>\n' + '\n' + '<!-- Text input-->\n' + '<div class="form-group">\n' + '  <label class="col-md-4 control-label" for="textinput">Name: {{name}}</label>  \n' + '  <div class="col-md-8">\n' + '  \t<input ng-model="name" type="text" placeholder="placeholder" class="form-control input-md">\n' + '  </div>\n' + '</div>');
+  }
+]);
+angular.module('config/config.tpl.html', []).run([
+  '$templateCache',
+  function ($templateCache) {
+    $templateCache.put('config/config.tpl.html', '<h1 class="page-header">{{title}} <small><i class="icon-double-angle-right"></i> configuration</small></h1>\n' + '<blockquote>Select a configuration type from the sidebar menu</blockquote>');
+  }
+]);
+angular.module('config/content/content.tpl.html', []).run([
+  '$templateCache',
+  function ($templateCache) {
+    $templateCache.put('config/content/content.tpl.html', '<h1 class="page-header">Content Types<small><i class="icon-double-angle-right"></i> manage your content types</small></h1>\n' + '<table class="table table-striped">\n' + '  <tr>\n' + '    <th>Name</th>\n' + '    <th>Actions</th>\n' + '  </tr>\n' + '  <tr ng-repeat="type in contenttypes">\n' + '    <td>{{type.name}}</td>\n' + '    <td>\n' + '      <button class="btn btn-success" ng-click="editType(type)"><i class="fa fa-pencil"></i></button>\n' + '      <button class="btn btn-danger" ng-click="removeType(type)"><i class="fa fa-trash-o"></i></button>\n' + '    </td>\n' + '  </tr>\n' + '  <tr>\n' + '    <td>\n' + '      <div class="form-group">\n' + '        <input ng-model="newName" type="text" placeholder="New content type name" class="form-control input-md" />\n' + '      </div>\n' + '    </td>\n' + '    <td><button class="btn btn-success" ng-click="addType(newName)"><i class="fa fa-plus"></i> New content type</button></td>\n' + '  </tr>\n' + '</table>');
+  }
+]);
+angular.module('config/content/type.tpl.html', []).run([
+  '$templateCache',
+  function ($templateCache) {
+    $templateCache.put('config/content/type.tpl.html', '<h1 class="page-header">{{contenttype.label}} content<small><i class="icon-double-angle-right"></i> manage your \'{{contenttype.name}}\' content type</small></h1>\n' + '<form class="col-md-12">\n' + '  <fieldset>\n' + '    <legend>Configuration</legend>\n' + '    <div class="form-group row">\n' + '      <label class="col-md-2 control-label" for="">Label</label>  \n' + '      <div class="col-md-8">\n' + '        <input ng-model="contenttype.label" type="text" placeholder="Label" class="form-control input-md" />\n' + '      </div>\n' + '    </div>\n' + '\t</fieldset>\n' + '\t<fieldset>\n' + '\t\t<legend>Fields</legend>\n' + '\t\t<table class="table table-striped">\n' + '\t\t\t<thead>\n' + '\t\t\t\t<tr>\n' + '\t\t\t\t\t<th>Order</th>\n' + '\t\t\t\t\t<th>Label</th>\n' + '\t\t\t\t\t<th>Name</th>\n' + '\t\t\t\t\t<th>Actions</th>\n' + '\t\t\t\t</tr>\n' + '\t\t\t</thead>\n' + '\t\t\t<tbody ui-sortable ng-model="contenttype.schema.properties">\n' + '\t\t\t\t<tr ng-repeat="(fieldname, field) in contenttype.schema.properties">\n' + '\t\t\t\t\t<td><i class="fa fa-arrows"></i></td>\n' + '\t\t\t\t\t<td><input type="text" ng-model="contenttype.schemaOptions[fieldname].label" placeholder="Label" class="form-control input-md" /></td>\n' + '\t\t\t\t\t<td><input type="text" ng-model="fieldname" class="form-control input-md" disabled/></td>\n' + '\t\t\t\t\t<td>\n' + '\t\t\t\t\t\t<button class="btn btn-success" ng-click="editField(fieldname)"><i class="fa fa-pencil"></i></button>\n' + '\t\t\t\t\t\t<button class="btn btn-danger" ng-click="removeField(fieldname)"><i class="fa fa-trash-o"></i></button>\n' + '\t\t\t\t\t</td>\n' + '\t\t\t\t</tr>\n' + '\t\t\t</tbody>\n' + '\t\t\t<tfooter>\n' + '\t\t\t\t<tr>\n' + '\t\t\t\t\t<td></td>\n' + '\t\t\t\t\t<td><input type="text" ng-model="newLabel" placeholder="Label" class="form-control input-md" /></td>\n' + '\t\t\t\t\t<td><input type="text" ng-model="newName" placeholder="name" class="form-control input-md" /></td>\n' + '\t\t\t\t\t<td><button class="btn btn-success" ng-click="addField(newLabel, newName)"><i class="fa fa-plus"></i> Add</button></td>\n' + '\t\t\t\t</tr>\n' + '\t\t\t</tfooter>\n' + '\t\t</table>\n' + '\t</fieldset>\n' + '\t<div cn-field-options cn-data="editfieldOptions" cn-field="editfield" ng-show="editfield !== undefined" />\n' + '\t<fieldset>\n' + '\t\t<legend>Actions</legend>\n' + '\t\t<div>\n' + '\t\t\t<button class="btn btn-success" ng-click="save()"><i class="fa fa-floppy-o"></i> Save</button>\n' + '\t\t\t<button class="btn btn-danger" ng-click="remove()"><i class="fa fa-trash-o"></i> Delete</button>\n' + '\t\t</div>\n' + '\t</fieldset>\n' + '</form>');
+  }
+]);
+angular.module('config/contentref/contentref.config.tpl.html', []).run([
+  '$templateCache',
+  function ($templateCache) {
+    $templateCache.put('config/contentref/contentref.config.tpl.html', '<div ng-controller="ContentRefConfigController">\n' + '\t<fieldset>\n' + '\t\t<legend>Content reference</legend>\n' + '    <div class="form-group row">\n' + '      <label class="col-md-2 control-label" for="">Content Type</label>  \n' + '      <div class="col-md-8">\n' + '        <select ng-options="contenttype.name as contenttype.label for contenttype in contenttypes" ng-model="data.contenttype" class="form-control input-md"></select>\n' + '      </div>\n' + '    </div>\n' + '    <div class="form-group row">\n' + '      <label class="col-md-2 control-label" for="">Select field</label>  \n' + '      <div class="col-md-8">\n' + '        <select ng-options="key as key for (key, value) in contenttype.schema.properties" ng-model="data.contentfield" class="form-control input-md"></select>\n' + '      </div>\n' + '    </div>\n' + '\t</fieldset>\n' + '</div>');
+  }
+]);
+angular.module('config/contentref/contentref.tpl.html', []).run([
+  '$templateCache',
+  function ($templateCache) {
+    $templateCache.put('config/contentref/contentref.tpl.html', '<div ng-controller="ContentRefController">\n' + '  <div class="form-group row">\n' + '    <div class="col-md-10">\n' + '      <select ng-options="key as value for (key, value) in contentList" ng-model="selected" class="form-control input-md"></select>\n' + '    </div>\n' + '  </div>\n' + '</div>');
+  }
+]);
+angular.module('content/content.item.tpl.html', []).run([
+  '$templateCache',
+  function ($templateCache) {
+    $templateCache.put('content/content.item.tpl.html', '<div class="page-header">\n' + '\t<h1>Content <small><i class="icon-double-angle-right"></i> manage your content</small></h1>\n' + '</div>\n' + '<div>\n' + '\t<div cn-schema-generator cn-schema="contenttype.schema" cn-data="item" cn-options="contenttype.schemaOptions" />\n' + '</div>\n' + '<div>\n' + '\t<button class="btn btn-success" ng-click="save()"><i class="fa fa-floppy-o"></i> Save</button>\n' + '</div>');
+  }
+]);
+angular.module('content/contentlist.tpl.html', []).run([
+  '$templateCache',
+  function ($templateCache) {
+    $templateCache.put('content/contentlist.tpl.html', '<h1 class="page-header">Content <small><i class="icon-double-angle-right"></i> manage your content</small></h1>\n' + '<div class="form-group row">\n' + '<label class="col-md-2 control-label" for="">Content type</label>  \n' + '  <div class="col-md-8">\n' + '    <div class="col-md-5">\n' + '      <select ng-options="type as type.label for type in contenttypes" ng-model="contenttype" class="form-control input-md"></select>\n' + '    </div>\n' + '    <div class="col-md-3" ng-show="contenttype">\n' + '      <button class="btn btn-success" ng-click="add()"><i class="fa fa-plus"></i> New {{contenttype.label}}</button>\n' + '    </div>\n' + '  </div>\n' + '</div>\n' + '<table class="table table-striped" ng-show="contentlist.length > 0">\n' + '\t<thead>\n' + '\t\t<tr>\n' + '\t\t\t<th ng-repeat="(fieldname, field) in contenttype.schema.properties" ng-show="contenttype.schemaOptions[fieldname].showInList">\n' + '\t\t\t\t{{contenttype.schemaOptions[fieldname].label}}\n' + '\t\t\t</th>\n' + '\t\t\t<th>Actions</th>\n' + '\t\t</tr>\n' + '\t</thead>\n' + '\t<tbody>\n' + '\t\t<tr ng-repeat="content in contentlist">\n' + '\t\t\t<td ng-repeat="(fieldname, field) in contenttype.schema.properties" ng-show="contenttype.schemaOptions[fieldname].showInList">\n' + '\t\t\t\t<a ng-click="edit(content)">{{content[fieldname]}}</a>\n' + '\t\t\t</td>\n' + '\t\t\t<td>\n' + '\t\t\t\t<button class="btn btn-success" ng-click="edit(content)"><i class="fa fa-pencil"></i></button>\n' + '\t\t\t\t<button class="btn btn-danger" ng-click="remove(content)"><i class="fa fa-trash-o"></i></button>\n' + '\t\t\t</td>\n' + '\t\t</tr>\n' + '\t</tbody>\n' + '</table>\n' + '<div ng-show="contenttype !== undefined && contentlist.length == 0">\n' + '\tNo {{contenttype.label}} content created yet.\n' + '</div>\n' + '<div ng-show="contenttype === undefined">\n' + '\tSelect a content type first\n' + '</div>');
+  }
+]);
+angular.module('content/references.tpl.html', []).run([
+  '$templateCache',
+  function ($templateCache) {
+    $templateCache.put('content/references.tpl.html', '<h1 class="page-header">Content references<small><i class="icon-double-angle-right"></i> manage your relations</small></h1>\n' + '<fieldset>\n' + '  <legend>Options</legend>\n' + '  <div class="row">\n' + '  \t<div class="col-md-6">\n' + '      <div class="form-group row">\n' + '        <label class="col-md-2 control-label" for="">Source</label>\n' + '        <div class="col-md-10">\n' + '          <button type="button" class="form-control btn btn-default dropdown-toggle">{{source.name}}</button>\n' + '          <ul class="dropdown-menu selectbox">\n' + '            <li ng-repeat="contenttype in contenttypes"><a ng-click="$parent.source = contenttype">{{contenttype.name}}</a></li>\n' + '          </ul>\n' + '        </div>\n' + '      </div>\n' + '    </div>\n' + '    <div class="col-md-6">\n' + '      <div class="form-group row" ng-show="source !== undefined">\n' + '        <label class="col-md-2 control-label" for="">Field</label>\n' + '        <div class="col-md-10">\n' + '          <button type="button" class="form-control btn btn-default dropdown-toggle">{{sourceField.name}}</button>\n' + '          <ul class="dropdown-menu selectbox">\n' + '            <li ng-repeat="field in contentRefFields"><a ng-click="$parent.sourceField = {name: field.name, field: field.field}">{{field.name}}</a></li>\n' + '          </ul>\n' + '        </div>\n' + '      </div>\n' + '    </div>\n' + '  </div>\n' + '\n' + '  <div class="row" ng-show="sourceField !== undefined">\n' + '    <div class="col-md-6">\n' + '      <div class="form-group">\n' + '        <div class="input-group row">\n' + '          <span class="input-group-addon"><i class="fa fa-search"></i></span>\n' + '          <input type="text" class="form-control" placeholder="Search" ng-model="srcSearch.title">\n' + '          <span class="input-group-addon" ng-click="unreferenced = !unreferenced"><i class="fa" ng-class="{\'fa-chain-broken\': unreferenced, \'fa-link\': !unreferenced}" title="Show unreferenced only"></i></span>\n' + '        </div>\n' + '      </div>\n' + '      <div class="form-group">\n' + '        <div class="list-group row">\n' + '          <a ng-repeat="content in contentList | filter:srcSearch" class="list-group-item" ng-class="{active: $parent.srcIndex[content._id] === true}" ng-click="selectSource(content)">{{content.title}}</a>\n' + '        </div>\n' + '      </div>\n' + '    </div>\n' + '    <div class="col-md-6">\n' + '      <div class="form-group">\n' + '        <div class="input-group">\n' + '          <span class="input-group-addon"><i class="fa fa-search"></i></span>\n' + '          <input type="text" class="form-control" placeholder="Search" ng-model="dstSearch[sourceField.field.contentfield]">\n' + '        </div>\n' + '      </div>\n' + '      <div class="form-group">\n' + '        <div class="list-group">\n' + '          <a ng-repeat="reference in referencedList | filter:dstSearch" class="list-group-item" ng-class="{active: $parent.destIndex[reference._id] === true}" ng-click="selectDestination(reference)">{{reference[sourceField.field.contentfield]}}</a>\n' + '        </div>\n' + '      </div>\n' + '    </div>\n' + '  </div>\n' + '</fieldset>');
+  }
+]);
+angular.module('featureprocessor/adminplugin.tpl.html', []).run([
+  '$templateCache',
+  function ($templateCache) {
+    $templateCache.put('featureprocessor/adminplugin.tpl.html', '<div ng-controller="FeatureProcessorAdminPluginCtrl">\n' + '\t<div class="input-group col-md-12">\n' + '\t\t<button class="btn btn-success" style="width: 100%" ng-click="showForm = !showForm">Add plugin</button>\n' + '\t</div>\n' + '\t<div ng-if="showForm">\n' + '\t\t<div class="form-group">\n' + '\t\t\t<div class="input-group">\n' + '\t\t\t\t<label class="col-md-12 control-label">ngModule</label>  \n' + '\t\t\t\t<div class="col-md-12">\n' + '\t\t\t\t\t<input ng-model="module" type="text" placeholder="e.g. core9Dashboard.files" class="form-control input-md">\n' + '\t\t\t\t\t<span class="help-block">Your angular module name</span>  \n' + '\t\t\t\t</div>\n' + '\t\t\t</div>\n' + '\t\t\t<div class="input-group">\n' + '\t  \t\t\t<label class="col-md-12 control-label">jsPath</label>  \n' + '\t  \t\t\t<div class="col-md-12">\n' + '\t  \t\t\t\t<input ng-model="file" type="text" placeholder="e.g. /static/dashboard/plugins/plugin-files.js" class="form-control input-md">\n' + '\t  \t\t\t\t<span class="help-block">Your js code path</span>  \n' + '\t  \t\t\t</div>\n' + '\t\t\t</div>\n' + '\t\t</div>\n' + '\t\t<div class="alert alert-warning">Note: you must add your js files manually (via the files feature type).</div>\n' + '\t\t<button class="btn btn-success" ng-click="add(module, file)">Add</button>\n' + '\t</div>\n' + '\t<ul class="list-group">\n' + '\t\t<li class="list-group-item" ng-repeat="adminplugin in $parent.selected">\n' + '\t\t\t<span class="badge" ng-click="remove($index)"><i class=\'fa fa-trash-o\'></i></span>\n' + '\t\t\t{{adminplugin.module}}\n' + '\t\t</li>\n' + '\t</ul>\n' + '</div>\n' + '');
+  }
+]);
+angular.module('forms/field.tpl.html', []).run([
+  '$templateCache',
+  function ($templateCache) {
+    $templateCache.put('forms/field.tpl.html', '<fieldset>\n' + '\t<legend>Field {{field.fieldname}}</legend>\n' + '  <div class="form-group row">\n' + '    <label class="col-md-2 control-label" for="">Type</label>  \n' + '    <div class="col-md-8">\n' + '      <select ng-options="type as type for type in fieldtypes" ng-model="field.type" class="form-control input-md"></select>\n' + '    </div>\n' + '  </div>\n' + '  <div class="form-group row">\n' + '    <label class="col-md-2 control-label" for="">Widget</label>  \n' + '    <div class="col-md-8">\n' + '      <select ng-options="widgetname as widgetname for (widgetname, widget) in fieldType.widgets" ng-model="data.widget" class="form-control input-md"></select>\n' + '    </div>\n' + '  </div>\n' + '  <div cn-field-config field="field" data="data"></div>\n' + '  <div class="form-group row">\n' + '    <label class="col-md-2 control-label" for="checkboxes">Show in list</label>\n' + '    <div class="col-md-2">\n' + '      <label class="checkbox-inline" for="showinlist">\n' + '        <input type="checkbox" id="showinlist" ng-model="data.showInList"> Show\n' + '      </label>\n' + '    </div>\n' + '  </div>\n' + '  <div>\n' + '    <button class="btn btn-success" ng-click="$parent.close()">Close</button>\n' + '  </div>\n' + '</fieldset>\n' + '');
+  }
+]);
+angular.module('forms/fields/array.config.tpl.html', []).run([
+  '$templateCache',
+  function ($templateCache) {
+    $templateCache.put('forms/fields/array.config.tpl.html', '<div ng-controller="coreArrayConfigController">\n' + '\t<fieldset>\n' + '\t\t<legend>Array configuration</legend>\n' + '    <div class="form-group row">\n' + '      <label class="col-md-2 control-label" for="">Widget</label>  \n' + '      <div class="col-md-8">\n' + '        <select ng-options="type as type for type in fieldtypes" ng-model="field.items.type" class="form-control input-md"></select>\n' + '      </div>\n' + '    </div>\n' + '    <div class="form-group row">\n' + '      <label class="col-md-2 control-label" for="">Widget</label>  \n' + '      <div class="col-md-8">\n' + '        <select ng-options="widgetname as widgetname for (widgetname, widget) in itemsfield.widgets" ng-model="data.items.widget" class="form-control input-md"></select>\n' + '      </div>\n' + '    </div>\n' + '\t\t<div cn-field-config field="field.items" data="data.items" />\n' + '\t</fieldset>\n' + '</div>');
+  }
+]);
+angular.module('forms/fields/array.tpl.html', []).run([
+  '$templateCache',
+  function ($templateCache) {
+    $templateCache.put('forms/fields/array.tpl.html', '<div class="row" ng-controller="coreArrayController">\n' + '  <label class="col-md-2 control-label">{{options.label}}</label>\n' + '  <div class="col-md-10">\n' + '    <table class="table table-striped">\n' + '      <tr>\n' + '        <th>Item</th>\n' + '        <th>Actions</th>\n' + '      </tr>\n' + '      <tr ng-repeat="item in data track by $index">\n' + '        <td>\n' + '          <div cn-schema-generator cn-name="name" cn-schema="schema.items" cn-data="data[$index]" cn-options="options"></div>\n' + '        </td>\n' + '        <td>\n' + '          <button class="btn btn-danger" ng-click="data.splice($index, 1)">Remove</button>\n' + '        </td>\n' + '      </tr>\n' + '      <tr>\n' + '        <td>Add new item</td>\n' + '        <td>\n' + '          <button class="btn btn-success" ng-click="addItem()">Add</button>\n' + '        </td>\n' + '      </tr>\n' + '    </table>\n' + '  </div>\n' + '</div>');
+  }
+]);
+angular.module('forms/fields/boolean.config.tpl.html', []).run([
+  '$templateCache',
+  function ($templateCache) {
+    $templateCache.put('forms/fields/boolean.config.tpl.html', 'No options available.');
+  }
+]);
+angular.module('forms/fields/boolean.tpl.html', []).run([
+  '$templateCache',
+  function ($templateCache) {
+    $templateCache.put('forms/fields/boolean.tpl.html', '<div class="input-group">\n' + '\t<span class="input-group-addon"><input type="checkbox" ng-model="data" /></span>\n' + '\t<div class="form-control">{{options.label}}</div>\n' + '</div>');
+  }
+]);
+angular.module('forms/fields/integer.config.tpl.html', []).run([
+  '$templateCache',
+  function ($templateCache) {
+    $templateCache.put('forms/fields/integer.config.tpl.html', '<div class="form-group row">\n' + '  <label class="col-md-2 control-label" for="">Minimum</label>  \n' + '  <div class="col-md-8">\n' + '    <input ng-model="data.minimum" type="number" class="form-control input-md" />\n' + '  </div>\n' + '</div>\n' + '<div class="form-group row">\n' + '  <label class="col-md-2 control-label" for="">Maximum</label>  \n' + '  <div class="col-md-8">\n' + '    <input ng-model="data.maximum" type="number" class="form-control input-md" />\n' + '  </div>\n' + '</div>');
+  }
+]);
+angular.module('forms/fields/integer.tpl.html', []).run([
+  '$templateCache',
+  function ($templateCache) {
+    $templateCache.put('forms/fields/integer.tpl.html', '<div class="form-group row">\n' + '  <label class="col-md-2 control-label">{{options.label}}</label>  \n' + '  <div class="col-md-8">\n' + '    <input ng-model="data" type="number" class="form-control input-md" />\n' + '  </div>\n' + '</div>');
+  }
+]);
+angular.module('forms/fields/object.config.tpl.html', []).run([
+  '$templateCache',
+  function ($templateCache) {
+    $templateCache.put('forms/fields/object.config.tpl.html', '<div ng-controller="coreObjectConfigController">\n' + '\t<fieldset>\n' + '\t\t<legend>Object configuration</legend>\n' + '\t\t<table class="table table-striped">\n' + '      <thead>\n' + '        <tr>\n' + '          <th>Order</th>\n' + '          <th>Label</th>\n' + '          <th>Name</th>\n' + '          <th>Actions</th>\n' + '        </tr>\n' + '      </thead>\n' + '      <tbody ui-sortable ng-model="field.properties">\n' + '        <tr ng-repeat="(fieldname, field) in field.properties">\n' + '          <td><i class="fa fa-arrows"></i></td>\n' + '          <td><input type="text" ng-model="data[fieldname].label" placeholder="Label" class="form-control input-md" /></td>\n' + '          <td><input type="text" ng-model="fieldname" class="form-control input-md" disabled /></td>\n' + '          <td>\n' + '            <button class="btn btn-success" ng-click="editField(fieldname)"><i class="fa fa-pencil"></i></button>\n' + '            <button class="btn btn-danger" ng-click="removeField(fieldname)"><i class="fa fa-trash-o"></i></button>\n' + '          </td>\n' + '        </tr>\n' + '      </tbody>\n' + '      <tfooter>\n' + '        <tr>\n' + '          <td></td>\n' + '          <td><input type="text" ng-model="newLabel" placeholder="Label" class="form-control input-md"  /></td>\n' + '          <td><input type="text" ng-model="newName" placeholder="name" class="form-control input-md" /></td>\n' + '          <td><button class="btn btn-success" ng-click="addField(newLabel, newName)"><i class="fa fa-plus"></i> Add</button></td>\n' + '        </tr>\n' + '      </tfooter>\n' + '    </table>\n' + '  </fieldset>\n' + '  <div cn-field-options cn-data="editfieldOptions" cn-field="editfield" ng-show="editfield !== undefined" />\n' + '</div>');
+  }
+]);
+angular.module('forms/fields/object.tpl.html', []).run([
+  '$templateCache',
+  function ($templateCache) {
+    $templateCache.put('forms/fields/object.tpl.html', '<div class="schema-type-object schema-type-object-{{name}}" ng-controller="coreObjectController">\n' + '\t<div ng-repeat="(innername, innerproperty) in schema.properties track by $index">\n' + '\t\t<div cn-schema-generator cn-name="innername" cn-schema="innerproperty" cn-data="data[innername]" cn-options="options"/>\n' + '\t</div>\n' + '</div>\n' + '');
+  }
+]);
+angular.module('forms/fields/select.tpl.html', []).run([
+  '$templateCache',
+  function ($templateCache) {
+    $templateCache.put('forms/fields/select.tpl.html', '<div class="input-group" ng-controller="coreSelectController">\n' + '  <div class="form-group row">\n' + '    <label class="col-md-2 control-label" for="">{{options.label}}</label>\n' + '    <div class="col-md-10">\n' + '      <button type="button" class="form-control btn btn-default dropdown-toggle">{{options.values[data]}}<span class="caret"></button>\n' + '      <ul class="dropdown-menu selectbox">\n' + '        <li ng-repeat="(id, name) in options.values track by $index"><a ng-click="switch(id)">{{name}} (ID: {{id}})</a></li>\n' + '      </ul>\n' + '    </div>\n' + '  </div>\n' + '</div>\n' + '');
+  }
+]);
+angular.module('forms/fields/select_with_global.tpl.html', []).run([
+  '$templateCache',
+  function ($templateCache) {
+    $templateCache.put('forms/fields/select_with_global.tpl.html', '<div class="input-group" ng-controller="coreGlobalSelectController">\n' + '  <span class="input-group-addon">{{options.label}}</span>\n' + ' \t<span class="input-group-addon"><input type="checkbox" ng-model="data.global" /> Global</span>\n' + '  <button type="button" class="btn btn-default form-control dropdown-toggle" ng-disabled="data.global">{{options.values[data.value]}}<span class="caret"></span>\n' + '  </button>\n' + '  <ul class="dropdown-menu selectbox">\n' + '    <li ng-repeat="(id, name) in options.values track by $index"><a ng-click="switch(id)">{{name}} (ID: {{id}})</a></li>\n' + '  </ul>\n' + '</div>');
+  }
+]);
+angular.module('forms/fields/textarea.config.tpl.html', []).run([
+  '$templateCache',
+  function ($templateCache) {
+    $templateCache.put('forms/fields/textarea.config.tpl.html', '<div class="form-group row">\n' + '  <label class="col-md-2 control-label" for="">Rows</label>  \n' + '  <div class="col-md-8">\n' + '    <input ng-model="data.rows" type="number" class="form-control input-md" />\n' + '  </div>\n' + '</div>\n' + '<div class="form-group row">\n' + '  <label class="col-md-2 control-label" for="">Columns</label>  \n' + '  <div class="col-md-8">\n' + '    <input ng-model="data.columns" type="number" class="form-control input-md" />\n' + '  </div>\n' + '</div>');
+  }
+]);
+angular.module('forms/fields/textarea.tpl.html', []).run([
+  '$templateCache',
+  function ($templateCache) {
+    $templateCache.put('forms/fields/textarea.tpl.html', '<div class="form-group row">\n' + '  <label class="col-md-2 control-label" for="textarea">{{options.label}}</label>\n' + '  <div class="col-md-10">                     \n' + '    <textarea class="form-control" rows="{{options.rows}}" cols="{{options.columns}}" ng-model="data"></textarea>\n' + '  </div>\n' + '</div>');
+  }
+]);
+angular.module('forms/fields/textfield.config.tpl.html', []).run([
+  '$templateCache',
+  function ($templateCache) {
+    $templateCache.put('forms/fields/textfield.config.tpl.html', '<div class="form-group row">\n' + '  <label class="col-md-2 control-label" for="">Pattern (optional)</label>  \n' + '  <div class="col-md-8">\n' + '    <input ng-model="data.pattern" type="text" placeholder="Regular expression" class="form-control input-md" />\n' + '  </div>\n' + '</div>');
+  }
+]);
+angular.module('forms/fields/textfield.tpl.html', []).run([
+  '$templateCache',
+  function ($templateCache) {
+    $templateCache.put('forms/fields/textfield.tpl.html', '<div class="form-group row">\n' + '  <label class="col-md-2 control-label">{{options.label}}</label>  \n' + '  <div class="col-md-8">\n' + '    <input ng-model="data" type="text" ng-pattern="{{options.pattern}}" class="form-control input-md" />\n' + '  </div>\n' + '</div>');
+  }
+]);
+angular.module('forms/fields/textfield_with_global.tpl.html', []).run([
+  '$templateCache',
+  function ($templateCache) {
+    $templateCache.put('forms/fields/textfield_with_global.tpl.html', '<div class="form-group row">\n' + '  <label class="col-md-2 control-label">{{options.label}}</label>  \n' + '  <div class="col-md-8">\n' + '    <div class="input-group">\n' + '      <span class="input-group-addon"><input type="checkbox" ng-model="data.global" /> Global</span>\n' + '      <input type="text" ng-disabled="data.global" class="form-control" ng-model="data.value" ng-pattern="{{options.pattern}}" />\n' + '    </div>\n' + '  </div>\n' + '</div>');
+  }
+]);
+angular.module('home/home.tpl.html', []).run([
+  '$templateCache',
+  function ($templateCache) {
+    $templateCache.put('home/home.tpl.html', '<div class="page-header">\n' + '  <h1>Dashboard <small><i class="icon-double-angle-right"></i> manage your webshop</small></h1>\n' + '  <form>\n' + '    <div class="form-group row">\n' + '      <label class="col-md-2 control-label">Username</label>  \n' + '      <div class="col-md-8">\n' + '        <input ng-model="username" type="text" class="form-control input-md" />\n' + '      </div>\n' + '    </div>\n' + '    <div class="form-group row">\n' + '      <label class="col-md-2 control-label">Password</label>\n' + '      <div class="col-md-8">\n' + '        <input ng-model="password" type="password" class="form-control input-md" />\n' + '      </div>\n' + '    </div>\n' + '    <div class="form-group row">\n' + '      <div class="col-md-10">\n' + '        <button class="btn btn-success pull-right" ng-click="login()">Login</button>\n' + '      </div>\n' + '    </div>\n' + '  </form>\n' + '</div>');
+  }
+]);
+angular.module('menu/menu.tpl.html', []).run([
+  '$templateCache',
+  function ($templateCache) {
+    $templateCache.put('menu/menu.tpl.html', '<ul class="nav" ng-if="thismenu.length > 0">\n' + '\t<li ng-repeat="item in thismenu|orderBy:\'weight\'" ui-sref-active="active">\n' + '    <a ui-sref="{{item.link}}" core-menu-item="item">{{item.title}}</a>\n' + '\t</li>\n' + '</ul>');
+  }
+]);
+angular.module('menueditor/entryactions.tpl.html', []).run([
+  '$templateCache',
+  function ($templateCache) {
+    $templateCache.put('menueditor/entryactions.tpl.html', '<fieldset>\n' + '\t<legend>Menu entry actions</legend>\n' + '\t<button class="btn btn-danger" ng-show="state.parent !== undefined" ng-click="remove()">Remove</button>\n' + '\t<button class="btn btn-warning" ng-click="state.showConfig = false">Close</button>\n' + '</fieldset>');
+  }
+]);
+angular.module('menueditor/entrytypes/li.config.tpl.html', []).run([
+  '$templateCache',
+  function ($templateCache) {
+    $templateCache.put('menueditor/entrytypes/li.config.tpl.html', '<div class="form-group row">\n' + '  <label class="col-md-2 control-label" for="">Name</label>  \n' + '  <div class="col-md-8">\n' + '    <input ng-model="state.editItem.name" type="text" placeholder="Name" class="form-control input-md" />\n' + '  </div>\n' + '</div>\n' + '<div class="form-group row">\n' + '  <label class="col-md-2 control-label" for="">Link</label>  \n' + '  <div class="col-md-8">\n' + '    <input ng-model="state.editItem.link" type="text" placeholder="Classes" class="form-control input-md" />\n' + '  </div>\n' + '</div>\n' + '<div class="row">\n' + '  <fieldset class="col-md-12">\n' + '    <legend>New subitem</legend>\n' + '    <div class="input-group">\n' + '      <div class="input-group-btn">\n' + '        <button type="button" class="btn btn-default dropdown-toggle">{{menuEntryTypes[newItem.type].name}} <span class="caret"></span></button>\n' + '        <ul class="dropdown-menu">\n' + '          <li ng-repeat="id in menuEntryTypes[state.editItem.type].childs track by $index"><a ng-click="newItem.type = id">{{menuEntryTypes[id].name}}</a></li>\n' + '        </ul>\n' + '      </div>\n' + '      <input type="text" class="form-control" placeholder="New item name" ng-model="newItem.name" />\n' + '      <div class="input-group-btn">\n' + '        <button class="btn btn-success" ng-click="addItem(item, newItem)">Add item</button>\n' + '      </div>\n' + '    </div>\n' + '  </fieldset>\n' + '</div>');
+  }
+]);
+angular.module('menueditor/entrytypes/li.tpl.html', []).run([
+  '$templateCache',
+  function ($templateCache) {
+    $templateCache.put('menueditor/entrytypes/li.tpl.html', '<li>\n' + '\t<a class="{{(item.items.length > 0) ? \'dropdown-toggle\' : \'\'}}" ng-click="edit()">{{item.name}} <b ng-if="item.items.length > 0" class="caret"></b></a>\n' + '\t<div ng-repeat="inner in item.items" cn-menu-item cn-parent="item" cn-item="inner" cn-state="state" />\n' + '</li>\n' + '');
+  }
+]);
+angular.module('menueditor/entrytypes/nav.tpl.html', []).run([
+  '$templateCache',
+  function ($templateCache) {
+    $templateCache.put('menueditor/entrytypes/nav.tpl.html', '<div class="input-group" style="width: 100%">\n' + '\t<div class="navbar navbar-default yamm">\n' + '\t\t<div class="navbar-header">\n' + '\t\t\t<button type="button" data-toggle="collapse" data-target="#navbar-collapse-grid" class="navbar-toggle"><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button><a ng-click="edit()" class="navbar-brand">{{item.name}}</a>\n' + '\t\t</div>\n' + '\t\t<div class="navbar-collapse collapse">\n' + '\t\t\t<ul class="nav navbar-nav" ui-sortable ng-model="item.items">\n' + '\t\t\t\t<div ng-if="state.fresh" ng-repeat="inner in item.items" cn-menu-item cn-parent="item" cn-item="inner" cn-state="state"></div>\n' + '\t\t\t</ul>\n' + '\t\t</div>\n' + '\t</div>\n' + '</div>\n' + '\n' + '\n' + '');
+  }
+]);
+angular.module('menueditor/entrytypes/navitem.tpl.html', []).run([
+  '$templateCache',
+  function ($templateCache) {
+    $templateCache.put('menueditor/entrytypes/navitem.tpl.html', '<li class="dropdown yamm-fw">\n' + '\t<a class="{{(item.items.length > 0) ? \'dropdown-toggle\' : \'\'}}" ng-click="edit()">{{item.name}} <b ng-if="item.items.length > 0" class="caret"></b></a>\n' + '\t<ul ng-if="item.items.length > 0" class="dropdown-menu">\n' + '\t\t<li>\n' + '\t\t\t<div class="row yamm-content" ui-sortable ng-model="item.items">\n' + '\t\t\t\t<div ng-repeat="inner in item.items" cn-menu-item cn-parent="item" cn-item="inner" cn-state="state" />\n' + '\t\t\t</div>\n' + '\t\t</li>\n' + '\t</ul>\n' + '</li>\n' + '');
+  }
+]);
+angular.module('menueditor/entrytypes/text.config.tpl.html', []).run([
+  '$templateCache',
+  function ($templateCache) {
+    $templateCache.put('menueditor/entrytypes/text.config.tpl.html', '<div class="form-group row">\n' + '  <label class="col-md-2 control-label" for="">Name</label>  \n' + '  <div class="col-md-8">\n' + '    <input ng-model="state.editItem.name" type="text" placeholder="Name" class="form-control input-md" />\n' + '  </div>\n' + '</div>\n' + '<div class="form-group row">\n' + '  <label class="col-md-2 control-label" for="">Content</label>  \n' + '  <div class="col-md-8">\n' + '    <input ng-model="state.editItem.content" type="text" placeholder="Classes" class="form-control input-md" />\n' + '  </div>\n' + '</div>\n' + '<div class="form-group row">\n' + '  <label class="col-md-2 control-label" for="">Classes</label>  \n' + '  <div class="col-md-8">\n' + '    <input ng-model="state.editItem.classes" type="text" placeholder="Name" class="form-control input-md" />\n' + '  </div>\n' + '</div>');
+  }
+]);
+angular.module('menueditor/entrytypes/text.tpl.html', []).run([
+  '$templateCache',
+  function ($templateCache) {
+    $templateCache.put('menueditor/entrytypes/text.tpl.html', '<div ng-class="item.classes">\n' + '\t<h5 ng-click="edit()">{{item.name}}</h5>\n' + '\t<p ng-click="edit()">{{item.content}}</p>\n' + '</div>');
+  }
+]);
+angular.module('menueditor/entrytypes/ul.config.tpl.html', []).run([
+  '$templateCache',
+  function ($templateCache) {
+    $templateCache.put('menueditor/entrytypes/ul.config.tpl.html', '<div class="form-group row">\n' + '  <label class="col-md-2 control-label" for="">Name</label>  \n' + '  <div class="col-md-8">\n' + '    <input ng-model="state.editItem.name" type="text" placeholder="Name" class="form-control input-md" />\n' + '  </div>\n' + '</div>\n' + '<div class="form-group row">\n' + '  <label class="col-md-2 control-label" for="">Classes</label>  \n' + '  <div class="col-md-8">\n' + '    <input ng-model="state.editItem.classes" type="text" placeholder="Classes" class="form-control input-md" />\n' + '  </div>\n' + '</div>\n' + '<div class="row">\n' + '  <fieldset class="col-md-12">\n' + '    <legend>New item</legend>\n' + '    <div class="input-group">\n' + '      <div class="input-group-btn">\n' + '        <button type="button" class="btn btn-default dropdown-toggle">{{menuEntryTypes[newItem.type].name}} <span class="caret"></span></button>\n' + '        <ul class="dropdown-menu">\n' + '          <li ng-repeat="id in menuEntryTypes[state.editItem.type].childs track by $index"><a ng-click="newItem.type = id">{{menuEntryTypes[id].name}}</a></li>\n' + '        </ul>\n' + '      </div>\n' + '      <input type="text" class="form-control" placeholder="New item name" ng-model="newItem.name" />\n' + '      <div class="input-group-btn">\n' + '        <button class="btn btn-success" ng-click="addItem()">Add item</button>\n' + '      </div>\n' + '    </div>\n' + '  </fieldset>\n' + '</div>');
+  }
+]);
+angular.module('menueditor/entrytypes/ul.tpl.html', []).run([
+  '$templateCache',
+  function ($templateCache) {
+    $templateCache.put('menueditor/entrytypes/ul.tpl.html', '<ul ng-class="item.classes">\n' + '\t<h5 ng-click="edit()">{{item.name}}<h5>\n' + '\t<div ui-sortable ng-model="item.items">\n' + '\t\t<div ng-if="state.fresh" ng-repeat="inner in item.items" cn-menu-item cn-parent="item" cn-item="inner" cn-state="state"></div>\n' + '\t</div>\n' + '</ul>');
+  }
+]);
+angular.module('menueditor/menu.tpl.html', []).run([
+  '$templateCache',
+  function ($templateCache) {
+    $templateCache.put('menueditor/menu.tpl.html', '<h1 class="page-header">\n' + '  Menu {{menu.name}}<small><i class="icon-double-angle-right"></i> manage your menu</small>\n' + '</h1>\n' + '<blockquote>\n' + 'You can edit your menu by click the item you wish to edit. Click the menu title to edit top level menu items. Click through your menu to edit those menu entries. You can also change the order of the menu by dragging and dropping the menu items to the place you want the item to be.\n' + '</blockquote>\n' + '<div>\n' + '  <div ng-if="state.fresh" cn-menu-item cn-item="menu" cn-state="state"></div>\n' + '  <div>\n' + '    <div ng-if="state.showConfig">\n' + '      <fieldset>\n' + '        <legend>Edit menu item</legend>\n' + '        <div cn-menu-item-config cn-menu="menu" cn-state="state" />\n' + '      </fieldset>\n' + '    </div>\n' + '    <fieldset>\n' + '      <legend>Menu actions</legend>\n' + '      <button class="btn btn-success" ng-click="save()">Save</button>\n' + '    </fieldset>\n' + '  </div>\n' + '</div>');
+  }
+]);
+angular.module('menueditor/menulist.tpl.html', []).run([
+  '$templateCache',
+  function ($templateCache) {
+    $templateCache.put('menueditor/menulist.tpl.html', '<h1 class="page-header">\n' + '\tMenu management\n' + '\t<small><i class="icon-double-angle-right"></i> edit your menus</small>\n' + '</h1>\n' + '<blockquote>You can edit or delete your menus, select a menu from the list below.</blockquote>\n' + '<fieldset>\n' + '\t<legend>Menus</legend>\n' + '\t<table class="table table-striped">\n' + '\t\t<tr>\n' + '\t\t\t<th>Name</th>\n' + '\t\t\t<th>Actions</th>\n' + '\t\t</tr>\n' + '\t\t<tr ng-repeat="menu in menus">\n' + '\t\t\t<td>{{menu.name}}</td>\n' + '\t\t\t<td>\n' + '\t\t\t\t<button class="btn btn-success" ng-click="edit(menu)"><i class="fa fa-pencil"></i></button>\n' + '\t\t\t\t<button class="btn btn-danger" ng-click="remove(menu)"><i class="fa fa-trash-o"></i></button>\n' + '\t\t\t</td>\n' + '\t\t</tr>\n' + '\t\t<tr>\n' + '\t\t\t<td>\n' + '\t\t\t\t<div class="form-group">\n' + '\t\t\t\t\t<input ng-model="newName" type="text" placeholder="New menu name" class="form-control input-md" />\n' + '\t\t\t\t</div>\n' + '\t\t\t</td>\n' + '\t\t\t<td>\n' + '\t\t\t\t<button class="btn btn-success" ng-click="add(newName)">\n' + '\t\t\t\t\t<i class="fa fa-plus"></i> Add new menu\n' + '\t\t\t\t</button>\n' + '\t\t\t</td>\n' + '\t\t</tr>\n' + '\t</table>\n' + '</fieldset>');
+  }
+]);
