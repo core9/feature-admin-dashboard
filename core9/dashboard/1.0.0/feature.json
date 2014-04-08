@@ -2,6 +2,9 @@
   "adminplugin" : [ {
     "module" : "core9Dashboard.admin.dashboard",
     "file" : "/static/admin/plugins/module-cms.js"
+  }, {
+    "module" : "core9Dashboard.users",
+    "file" : "/static/admin/plugins/module-platform-users.js"
   } ],
   "files" : [ {
     "id" : "R1A2MM5J8OJ8",
@@ -39,6 +42,18 @@
         "type" : "File"
       }
     }
+  }, {
+    "id" : "1IAY6MVLIL1LW",
+    "entry" : {
+      "_id" : "1IAY6MVLIL1LW",
+      "filename" : "module-platform-users.js",
+      "contentType" : "application/javascript",
+      "uploadDate" : 1396963253631,
+      "metadata" : {
+        "folder" : "/admin/plugins/",
+        "type" : "File"
+      }
+    }
   } ],
   "configuration" : [ {
     "id" : "T4CB78OIMTRM",
@@ -48,12 +63,12 @@
       "name" : "dashboard",
       "templateName" : "dashboard",
       "path" : "/admin",
+      "roles" : [ ],
+      "permissions" : [ "dashboard:access" ],
       "components" : [ {
         "name" : "dashboard",
         "globals" : { }
-      } ],
-      "roles" : [ ],
-      "permissions" : [ "dashboard:access" ]
+      } ]
     }
   }, {
     "id" : "SOPPF9OHT8VP",
@@ -90,50 +105,6 @@
       } ]
     }
   }, {
-    "id" : "VF0X28ZMQVCI",
-    "entry" : {
-      "_id" : "VF0X28ZMQVCI",
-      "name" : "users",
-      "configtype" : "content",
-      "label" : "Users",
-      "schema" : {
-        "title" : "users",
-        "type" : "object",
-        "properties" : {
-          "username" : {
-            "type" : "string"
-          },
-          "password" : {
-            "type" : "string"
-          },
-          "roles" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
-          }
-        }
-      },
-      "schemaOptions" : {
-        "username" : {
-          "label" : "Username",
-          "widget" : "standard",
-          "showInList" : true
-        },
-        "password" : {
-          "label" : "Password",
-          "widget" : "standard"
-        },
-        "roles" : {
-          "label" : "Roles",
-          "widget" : "standard",
-          "items" : {
-            "widget" : "standard"
-          }
-        }
-      }
-    }
-  }, {
     "id" : "1JXZX0L0JANAP",
     "entry" : {
       "_id" : "1JXZX0L0JANAP",
@@ -142,14 +113,15 @@
       "permissions" : [ "dashboard:*", "*" ]
     }
   } ],
-  "content" : [ {
-    "id" : "users-R1AK88L505RT",
+  "content" : [ ],
+  "user" : [ {
+    "id" : "R1AK88L505RT",
     "entry" : {
-      "_id" : "R1AK88L505RT",
-      "contenttype" : "users",
+      "username" : "root",
+      "password" : "f46e6ae0768a564008dd14b0c1480b5cc5ff64db0507bf8018c3d58ee863a680",
+      "salt" : "root",
       "roles" : [ "admin" ],
-      "password" : "secret",
-      "username" : "root"
+      "id" : "R1AK88L505RT"
     }
   } ]
 }

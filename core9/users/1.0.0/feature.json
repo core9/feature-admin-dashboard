@@ -1,0 +1,19 @@
+{
+  "files" : [ {
+    "id" : "1IAY6MVLIL1LW",
+    "entry" : {
+      "_id" : "1IAY6MVLIL1LW",
+      "filename" : "module-platform-users.js",
+      "contentType" : "application/javascript",
+      "uploadDate" : 1396952086272,
+      "metadata" : {
+        "folder" : "/admin/plugins/",
+        "type" : "File"
+      }
+    }
+  } ],
+  "adminplugin" : [ {
+    "module" : "core9Dashboard.users",
+    "file" : "/static/admin/plugins/module-platform-users.js"
+  } ]
+}
