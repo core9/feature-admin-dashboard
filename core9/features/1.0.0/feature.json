@@ -13,7 +13,7 @@
     }
   } ],
   "adminplugin" : [ {
-    "module" : "core9Dashboard.features",
-    "file" : "/static/admin/plugins/module-cms-features.js"
+    "file" : "/static/admin/plugins/module-cms-features.js",
+    "dependencies" : [ "" ]
   } ]
 }
