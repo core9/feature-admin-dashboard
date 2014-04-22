@@ -3,10 +3,6 @@
   "description" : "Core9 Admin Dashboard",
   "versions" : [ "1.0.0" ]
 }, {
-  "name" : "core9/features",
-  "description" : "Features Admin Module",
-  "versions" : [ "1.0.0" ]
-}, {
   "name" : "core9/filesmanager",
   "description" : "Files Manager Admin Module",
   "versions" : [ "1.0.0" ]
@@ -29,5 +25,9 @@
 }, {
   "name" : "core9/reference-manager",
   "description" : "Manage your content references",
+  "versions" : [ "1.0.0" ]
+}, {
+  "name" : "core9/features",
+  "description" : "Core9 Features plugin",
   "versions" : [ "1.0.0" ]
 } ]
