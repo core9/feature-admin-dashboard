@@ -1,5 +1,18 @@
 {
   "adminplugin" : [ {
     "file" : "/static/admin/plugins/module-platform-menu.js"
+  } ],
+  "files" : [ {
+    "id" : "VEY62MWI0YT3",
+    "entry" : {
+      "_id" : "VEY62MWI0YT3",
+      "filename" : "module-platform-menu.js",
+      "contentType" : "application/javascript",
+      "uploadDate" : 1398178707267,
+      "metadata" : {
+        "folder" : "/admin/plugins/",
+        "type" : "File"
+      }
+    }
   } ]
 }

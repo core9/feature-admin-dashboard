@@ -1,0 +1,18 @@
+{
+  "adminplugin" : [ {
+    "file" : "/static/admin/plugins/module-platform-reference-manager.js"
+  } ],
+  "files" : [ {
+    "id" : "R17A4YNB3OE0",
+    "entry" : {
+      "_id" : "R17A4YNB3OE0",
+      "filename" : "module-platform-reference-manager.js",
+      "contentType" : "application/javascript",
+      "uploadDate" : 1398179098685,
+      "metadata" : {
+        "folder" : "/admin/plugins/",
+        "type" : "File"
+      }
+    }
+  } ]
+}
