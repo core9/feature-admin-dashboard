@@ -22,4 +22,8 @@
   "name" : "core9/thumbnails",
   "description" : "Image profiles editor",
   "versions" : [ "1.0.0" ]
+}, {
+  "name" : "core9/menu",
+  "description" : "An intuitive menu editor by Core9",
+  "versions" : [ "1.0.0" ]
 } ]

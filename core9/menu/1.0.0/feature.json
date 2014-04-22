@@ -1,0 +1,5 @@
+{
+  "adminplugin" : [ {
+    "file" : "/static/admin/plugins/module-platform-menu.js"
+  } ]
+}
