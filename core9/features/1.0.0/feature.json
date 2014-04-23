@@ -1,7 +1,7 @@
 {
   "adminplugin" : [ {
     "file" : "/static/admin/plugins/module-cms-features.js",
-    "dependencies" : [ "" ]
+    "dependencies" : [ "/static/admin/plugins/module-cms.js" ]
   } ],
   "files" : [ {
     "id" : "URP6MBPFOY90",
