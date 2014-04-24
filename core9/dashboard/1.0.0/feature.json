@@ -109,7 +109,7 @@
     "entry" : {
       "_id" : "1JXZX0L0JANAP",
       "configtype" : "userrole",
-      "role" : "admin",
+      "name" : "admin",
       "permissions" : [ "dashboard:*", "*" ]
     }
   } ],
