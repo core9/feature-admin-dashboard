@@ -66,6 +66,7 @@
       "roles" : [ ],
       "permissions" : [ "dashboard:access" ],
       "components" : [ {
+        "id" : "SOPPF9OHT8VP",
         "name" : "dashboard",
         "globals" : { }
       } ]
@@ -100,6 +101,7 @@
       "templateName" : "dashboardlogin",
       "path" : "/dashboard/login",
       "components" : [ {
+        "id" : "URE0Q5J2S12D",
         "name" : "dashboardlogin",
         "globals" : { }
       } ]
