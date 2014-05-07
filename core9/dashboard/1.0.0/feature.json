@@ -119,6 +119,7 @@
   "user" : [ {
     "id" : "R1AK88L505RT",
     "entry" : {
+      "_id" : "R1AK88L505RT",
       "username" : "root",
       "password" : "f46e6ae0768a564008dd14b0c1480b5cc5ff64db0507bf8018c3d58ee863a680",
       "salt" : "root",
