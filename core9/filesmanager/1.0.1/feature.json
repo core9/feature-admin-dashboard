@@ -1,0 +1,19 @@
+{
+  "files" : [ {
+    "id" : "1IUNPBINPL5BQ",
+    "entry" : {
+      "_id" : "1IUNPBINPL5BQ",
+      "filename" : "module-cms-filesmanager.js",
+      "contentType" : "application/javascript",
+      "uploadDate" : 1399443167985,
+      "metadata" : {
+        "folder" : "/admin/plugins/",
+        "type" : "File"
+      }
+    }
+  } ],
+  "adminplugin" : [ {
+    "file" : "/static/admin/plugins/module-cms-filesmanager.js",
+    "dependencies" : [ "" ]
+  } ]
+}
