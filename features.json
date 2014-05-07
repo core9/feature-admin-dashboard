@@ -5,7 +5,7 @@
 }, {
   "name" : "core9/filesmanager",
   "description" : "Files Manager Admin Module",
-  "versions" : [ "1.0.0", "1.0.1" ]
+  "versions" : [ "1.0.1" ]
 }, {
   "name" : "core9/widgets",
   "description" : "Manage your widgets and pagemodels",
