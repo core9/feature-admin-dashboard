@@ -1,0 +1,327 @@
+{
+  "configuration" : [ {
+    "id" : "1IB0YHI3NN321",
+    "entry" : {
+      "_id" : "1IB0YHI3NN321",
+      "configtype" : "pagemodel",
+      "name" : "swagger",
+      "templateName" : "swagger",
+      "path" : "/swagger",
+      "components" : [ {
+        "id" : "T89NP9H6JA5U",
+        "name" : "swagger",
+        "globals" : { }
+      } ]
+    }
+  }, {
+    "id" : "T89NP9H6JA5U",
+    "entry" : {
+      "_id" : "T89NP9H6JA5U",
+      "configtype" : "widget",
+      "name" : "swagger",
+      "handleroptions" : { },
+      "templateName" : "site.swagger",
+      "template" : "{namespace site}\n\n/**\n *\n */\n{template .swagger}\n<!DOCTYPE html>\n<html>\n<head>\n  <title>Swagger UI</title>\n  <link href='https://fonts.googleapis.com/css?family=Droid+Sans:400,700' rel='stylesheet' type='text/css'/>\n  <link href='/static/plugins/swagger/css/reset.css' media='screen' rel='stylesheet' type='text/css'/>\n  <link href='/static/plugins/swagger/css/screen.css' media='screen' rel='stylesheet' type='text/css'/>\n  <link href='/static/plugins/swagger/css/reset.css' media='print' rel='stylesheet' type='text/css'/>\n  <link href='/static/plugins/swagger/css/screen.css' media='print' rel='stylesheet' type='text/css'/>\n  <script type=\"text/javascript\" src=\"/static/plugins/swagger/lib/shred.bundle.js\"></script>\n  <script src='/static/plugins/swagger/lib/jquery-1.8.0.min.js' type='text/javascript'></script>\n  <script src='/static/plugins/swagger/lib/jquery.slideto.min.js' type='text/javascript'></script>\n  <script src='/static/plugins/swagger/lib/jquery.wiggle.min.js' type='text/javascript'></script>\n  <script src='/static/plugins/swagger/lib/jquery.ba-bbq.min.js' type='text/javascript'></script>\n  <script src='/static/plugins/swagger/lib/handlebars-1.0.0.js' type='text/javascript'></script>\n  <script src='/static/plugins/swagger/lib/underscore-min.js' type='text/javascript'></script>\n  <script src='/static/plugins/swagger/lib/backbone-min.js' type='text/javascript'></script>\n  <script src='/static/plugins/swagger/lib/swagger.js' type='text/javascript'></script>\n  <script src='/static/plugins/swagger/swagger-ui.js' type='text/javascript'></script>\n  <script src='/static/plugins/swagger/lib/highlight.7.3.pack.js' type='text/javascript'></script>\n\n  <!-- enabling this will enable oauth2 implicit scope support -->\n  <script src='/static/plugins/swagger/lib/swagger-oauth.js' type='text/javascript'></script>\n\n  <script type=\"text/javascript\">\n  {literal}\n    $(function () {\n      window.swaggerUi = new SwaggerUi({\n      url: \"http://localhost:8080/api/pet-docs\",\n      dom_id: \"swagger-ui-container\",\n      supportedSubmitMethods: ['get', 'post', 'put', 'delete'],\n      onComplete: function(swaggerApi, swaggerUi){\n        log(\"Loaded SwaggerUI\");\n\n        if(typeof initOAuth == \"function\") {\n          /*\n          initOAuth({\n            clientId: \"your-client-id\",\n            realm: \"your-realms\",\n            appName: \"your-app-name\"\n          });\n          */\n        }\n        $('pre code').each(function(i, e) {\n          hljs.highlightBlock(e)\n        });\n      },\n      onFailure: function(data) {\n        log(\"Unable to Load SwaggerUI\");\n      },\n      docExpansion: \"none\"\n    });\n\n    $('#input_apiKey').change(function() {\n      var key = $('#input_apiKey')[0].value;\n      log(\"key: \" + key);\n      if(key && key.trim() != \"\") {\n        log(\"added key \" + key);\n        window.authorizations.add(\"key\", new ApiKeyAuthorization(\"api_key\", key, \"query\"));\n      }\n    })\n    window.swaggerUi.load();\n  });\n  {/literal}\n  </script>\n</head>\n\n<body class=\"swagger-section\">\n<div id='header'>\n  <div class=\"swagger-ui-wrap\">\n    <a id=\"logo\" href=\"http://swagger.wordnik.com\">swagger</a>\n    <form id='api_selector'>\n      <div class='input icon-btn'>\n        <img id=\"show-pet-store-icon\" src=\"/static/plugins/swagger/images/pet_store_api.png\" title=\"Show Swagger Petstore Example Apis\">\n      </div>\n      <div class='input icon-btn'>\n        <img id=\"show-wordnik-dev-icon\" src=\"/static/plugins/swagger/images/wordnik_api.png\" title=\"Show Wordnik Developer Apis\">\n      </div>\n      <div class='input'><input placeholder=\"http://example.com/api\" id=\"input_baseUrl\" name=\"baseUrl\" type=\"text\"/></div>\n      <div class='input'><input placeholder=\"api_key\" id=\"input_apiKey\" name=\"apiKey\" type=\"text\"/></div>\n      <div class='input'><a id=\"explore\" href=\"#\">Explore</a></div>\n    </form>\n  </div>\n</div>\n\n<div id=\"message-bar\" class=\"swagger-ui-wrap\">&nbsp;</div>\n<div id=\"swagger-ui-container\" class=\"swagger-ui-wrap\"></div>\n</body>\n</html>\n\n{/template}\n"
+    }
+  } ],
+  "files" : [ {
+    "id" : "1HRBEKFAZQQ1Y",
+    "entry" : {
+      "metadata" : {
+        "folder" : "/plugins/swagger/",
+        "type" : "File"
+      },
+      "filename" : "o2c.html",
+      "uploadDate" : 1401514899009,
+      "_id" : "1HRBEKFAZQQ1Y",
+      "contentType" : "text/html",
+      "md5" : "7221cd4de2a091dc3af0ec68a6c34c3c"
+    }
+  }, {
+    "id" : "TOLOQNJ1ZRCO",
+    "entry" : {
+      "metadata" : {
+        "folder" : "/plugins/swagger/",
+        "type" : "File"
+      },
+      "filename" : "index.html",
+      "uploadDate" : 1401514897048,
+      "_id" : "TOLOQNJ1ZRCO",
+      "contentType" : "text/html",
+      "md5" : "a758b7ed3021614e8c49fd894ca13e80"
+    }
+  }, {
+    "id" : "R1CSG26HT4C1",
+    "entry" : {
+      "metadata" : {
+        "folder" : "/plugins/swagger/",
+        "type" : "File"
+      },
+      "filename" : "swagger-ui.js",
+      "uploadDate" : 1401514894527,
+      "_id" : "R1CSG26HT4C1",
+      "contentType" : "application/javascript",
+      "md5" : "d1eec4cbb835debe39454a3ec6205f5c"
+    }
+  }, {
+    "id" : "QE9FLAC7Y1Q1",
+    "entry" : {
+      "metadata" : {
+        "folder" : "/plugins/swagger/",
+        "type" : "File"
+      },
+      "filename" : "swagger-ui.min.js",
+      "uploadDate" : 1401514891888,
+      "_id" : "QE9FLAC7Y1Q1",
+      "contentType" : "application/javascript",
+      "md5" : "905b860f015b678d0eee2e6f05094cc0"
+    }
+  }, {
+    "id" : "1JEW2ZZJ5ZBJM",
+    "entry" : {
+      "metadata" : {
+        "folder" : "/plugins/swagger/images/",
+        "type" : "File"
+      },
+      "filename" : "wordnik_api.png",
+      "uploadDate" : 1401515012447,
+      "_id" : "1JEW2ZZJ5ZBJM",
+      "contentType" : "image/png",
+      "md5" : "86c91314ec1a9958bb1d9951589c5073"
+    }
+  }, {
+    "id" : "1IB8R11ZYML2Q",
+    "entry" : {
+      "metadata" : {
+        "folder" : "/plugins/swagger/images/",
+        "type" : "File"
+      },
+      "filename" : "pet_store_api.png",
+      "uploadDate" : 1401515012445,
+      "_id" : "1IB8R11ZYML2Q",
+      "contentType" : "image/png",
+      "md5" : "1dd69a040ebe4d74c45e4d3d141c34a9"
+    }
+  }, {
+    "id" : "U7OKS2FBF2W1",
+    "entry" : {
+      "metadata" : {
+        "folder" : "/plugins/swagger/images/",
+        "type" : "File"
+      },
+      "filename" : "explorer_icons.png",
+      "uploadDate" : 1401515012445,
+      "_id" : "U7OKS2FBF2W1",
+      "contentType" : "image/png",
+      "md5" : "73d1f93d362fce5a26f1b1ac4ad93570"
+    }
+  }, {
+    "id" : "QDSSK48QN5GK",
+    "entry" : {
+      "metadata" : {
+        "folder" : "/plugins/swagger/images/",
+        "type" : "File"
+      },
+      "filename" : "throbber.gif",
+      "uploadDate" : 1401515012445,
+      "_id" : "QDSSK48QN5GK",
+      "contentType" : "image/gif",
+      "md5" : "bfefe70e3951f1883a84e7bc4033fe97"
+    }
+  }, {
+    "id" : "QXR3RS6V8XUP",
+    "entry" : {
+      "metadata" : {
+        "folder" : "/plugins/swagger/images/",
+        "type" : "File"
+      },
+      "filename" : "logo_small.png",
+      "uploadDate" : 1401515012445,
+      "_id" : "QXR3RS6V8XUP",
+      "contentType" : "image/png",
+      "md5" : "7212b5e621350942ecbf8f1a3834fa2c"
+    }
+  }, {
+    "id" : "QHHRUUTGA350",
+    "entry" : {
+      "metadata" : {
+        "folder" : "/plugins/swagger/css/",
+        "type" : "File"
+      },
+      "filename" : "screen.css",
+      "uploadDate" : 1401514968091,
+      "_id" : "QHHRUUTGA350",
+      "contentType" : "text/css",
+      "md5" : "d8dce9c16f4ae6136a0eec254bb333ac"
+    }
+  }, {
+    "id" : "VF98DZZSKPIO",
+    "entry" : {
+      "metadata" : {
+        "folder" : "/plugins/swagger/css/",
+        "type" : "File"
+      },
+      "filename" : "reset.css",
+      "uploadDate" : 1401514968092,
+      "_id" : "VF98DZZSKPIO",
+      "contentType" : "text/css",
+      "md5" : "721a281d71126476ef38ef785005ad0b"
+    }
+  }, {
+    "id" : "T4TFGAAY14QF",
+    "entry" : {
+      "metadata" : {
+        "folder" : "/plugins/swagger/lib/",
+        "type" : "File"
+      },
+      "filename" : "underscore-min.js",
+      "uploadDate" : 1401514942393,
+      "_id" : "T4TFGAAY14QF",
+      "contentType" : "application/javascript",
+      "md5" : "0899f764c85bbcc13206e3dd8318e678"
+    }
+  }, {
+    "id" : "SL686OQ1TD9D",
+    "entry" : {
+      "metadata" : {
+        "folder" : "/plugins/swagger/lib/",
+        "type" : "File"
+      },
+      "filename" : "jquery-1.8.0.min.js",
+      "uploadDate" : 1401514942386,
+      "_id" : "SL686OQ1TD9D",
+      "contentType" : "application/javascript",
+      "md5" : "cd8b0bffc85bb5614385ee4ce3596d07"
+    }
+  }, {
+    "id" : "1IUVGR9QHAL9S",
+    "entry" : {
+      "metadata" : {
+        "folder" : "/plugins/swagger/lib/",
+        "type" : "File"
+      },
+      "filename" : "shred.bundle.js",
+      "uploadDate" : 1401514942386,
+      "_id" : "1IUVGR9QHAL9S",
+      "contentType" : "application/javascript",
+      "md5" : "f30345533db8a7f00b55849e6b232b6f"
+    }
+  }, {
+    "id" : "1JI4FWGDDROZ9",
+    "entry" : {
+      "metadata" : {
+        "folder" : "/plugins/swagger/lib/",
+        "type" : "File"
+      },
+      "filename" : "swagger.js",
+      "uploadDate" : 1401514942383,
+      "_id" : "1JI4FWGDDROZ9",
+      "contentType" : "application/javascript",
+      "md5" : "cc42d915369591bfa5cd425b935fb661"
+    }
+  }, {
+    "id" : "URGSHLWAPCGX",
+    "entry" : {
+      "metadata" : {
+        "folder" : "/plugins/swagger/lib/",
+        "type" : "File"
+      },
+      "filename" : "swagger-oauth.js",
+      "uploadDate" : 1401514942380,
+      "_id" : "URGSHLWAPCGX",
+      "contentType" : "application/javascript",
+      "md5" : "9902ccd8ff3a6a5eb3a61e8b8977d44d"
+    }
+  }, {
+    "id" : "1K1WSOHU0MDYO",
+    "entry" : {
+      "metadata" : {
+        "folder" : "/plugins/swagger/lib/",
+        "type" : "File"
+      },
+      "filename" : "handlebars-1.0.0.js",
+      "uploadDate" : 1401514942375,
+      "_id" : "1K1WSOHU0MDYO",
+      "contentType" : "application/javascript",
+      "md5" : "6f95155fd6469590d96c9651ee156795"
+    }
+  }, {
+    "id" : "U88H71E4PF78",
+    "entry" : {
+      "metadata" : {
+        "folder" : "/plugins/swagger/lib/",
+        "type" : "File"
+      },
+      "filename" : "highlight.7.3.pack.js",
+      "uploadDate" : 1401514942375,
+      "_id" : "U88H71E4PF78",
+      "contentType" : "application/javascript",
+      "md5" : "1faadb031ba98569ab3e854b64b2db06"
+    }
+  }, {
+    "id" : "RKXBWRRR5ZDT",
+    "entry" : {
+      "metadata" : {
+        "folder" : "/plugins/swagger/lib/",
+        "type" : "File"
+      },
+      "filename" : "jquery.wiggle.min.js",
+      "uploadDate" : 1401514942367,
+      "_id" : "RKXBWRRR5ZDT",
+      "contentType" : "application/javascript",
+      "md5" : "7438b3ef10b182042dfa722f99ef2574"
+    }
+  }, {
+    "id" : "1HRAX1D96J3UC",
+    "entry" : {
+      "metadata" : {
+        "folder" : "/plugins/swagger/lib/",
+        "type" : "File"
+      },
+      "filename" : "jquery.ba-bbq.min.js",
+      "uploadDate" : 1401514942364,
+      "_id" : "1HRAX1D96J3UC",
+      "contentType" : "application/javascript",
+      "md5" : "07c72646c76932834219ef6827451df3"
+    }
+  }, {
+    "id" : "1JY4XGT12M0C5",
+    "entry" : {
+      "metadata" : {
+        "folder" : "/plugins/swagger/lib/",
+        "type" : "File"
+      },
+      "filename" : "backbone-min.js",
+      "uploadDate" : 1401514942364,
+      "_id" : "1JY4XGT12M0C5",
+      "contentType" : "application/javascript",
+      "md5" : "9f8b43fd1df78dca0827c73e29890865"
+    }
+  }, {
+    "id" : "RHGKVUY2820G",
+    "entry" : {
+      "metadata" : {
+        "folder" : "/plugins/swagger/lib/",
+        "type" : "File"
+      },
+      "filename" : "jquery.slideto.min.js",
+      "uploadDate" : 1401514942362,
+      "_id" : "RHGKVUY2820G",
+      "contentType" : "application/javascript",
+      "md5" : "d41d8cd98f00b204e9800998ecf8427e"
+    }
+  }, {
+    "id" : "1IYC8MRH3D082",
+    "entry" : {
+      "metadata" : {
+        "folder" : "/plugins/swagger/lib/shred/",
+        "type" : "File"
+      },
+      "filename" : "content.js",
+      "uploadDate" : 1401514955562,
+      "_id" : "1IYC8MRH3D082",
+      "contentType" : "application/javascript",
+      "md5" : "2b16382031dc9f9b0347630be384c1a8"
+    }
+  } ]
+}

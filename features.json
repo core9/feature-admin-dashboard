@@ -30,4 +30,8 @@
   "name" : "core9/features",
   "description" : "Core9 Features plugin",
   "versions" : [ "1.0.0" ]
+}, {
+  "name" : "core9/swagger",
+  "description" : "Swagger ui for documenting and testing api's",
+  "versions" : [ "0.0.1" ]
 } ]
