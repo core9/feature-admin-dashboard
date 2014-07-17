@@ -1,19 +1,19 @@
 {
   "files" : [ {
-    "id" : "1IYC8Y5WOM6HV",
     "entry" : {
-      "_id" : "1IYC8Y5WOM6HV",
-      "filename" : "module-cms-widgets.js",
-      "contentType" : "application/javascript",
-      "uploadDate" : 1395095958779,
       "metadata" : {
         "folder" : "/admin/plugins/",
         "type" : "File"
-      }
-    }
+      },
+      "filename" : "module-cms-widgets.js",
+      "uploadDate" : 1395095958779,
+      "_id" : "1IYC8Y5WOM6HV",
+      "contentType" : "application/javascript"
+    },
+    "id" : "1IYC8Y5WOM6HV"
   } ],
   "adminplugin" : [ {
-    "module" : "core9Dashboard.widgets",
-    "file" : "/static/admin/plugins/module-cms-widgets.js"
+    "file" : "/static/admin/plugins/module-cms-widgets.js",
+    "module" : "core9Dashboard.widgets"
   } ]
 }
