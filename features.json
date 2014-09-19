@@ -1,7 +1,7 @@
 [ {
+  "versions" : [ "1.0.0" ],
   "name" : "core9/dashboard",
-  "description" : "Core9 Admin Dashboard",
-  "versions" : [ "1.0.0" ]
+  "description" : "Core9 Admin Dashboard"
 }, {
   "name" : "core9/filesmanager",
   "description" : "Files Manager Admin Module",
